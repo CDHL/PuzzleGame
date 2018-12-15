@@ -2,7 +2,6 @@
 
 #include <d2d1.h>
 #pragma comment(lib, "d2d1")
-#include <dwrite.h>
 
 #include "game.h"
 
