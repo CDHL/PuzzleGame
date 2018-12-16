@@ -19,7 +19,7 @@ public:
 		for (DATA_TYPE *p : m_pool) delete[] p;
 	}
 
-	DATA_TYPE* getPointer()
+	DATA_TYPE* getNew()
 	{
 		if (!m_recycle.empty())
 		{

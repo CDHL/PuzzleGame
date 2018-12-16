@@ -1,4 +1,5 @@
-#include <Windows.h>
+#include "stdafx.h"
+
 #include <windowsx.h>
 
 #include "draw.h"
@@ -7,16 +8,16 @@ HWND hwnd;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-int WINAPI wWinMain(
+int WINAPI _tWinMain(
 	_In_ HINSTANCE hInstance, 
 	_In_opt_ HINSTANCE hPrevInstance, 
-	_In_ PWSTR pCmdLine, 
+	_In_ PTSTR pCmdLine, 
 	_In_ int nCmdShow
 )
 {
 	// Register the window class.
 
-	const wchar_t CLASS_NAME[] = L"PuzzleGame Window Class";
+	const TCHAR CLASS_NAME[] = _T("PuzzleGame Window Class");
 
 	WNDCLASS wc = { };
 
@@ -30,18 +31,18 @@ int WINAPI wWinMain(
 	// Create the window.
 	
 	hwnd = CreateWindowEx(
-		0,						// Optional window styles
-		CLASS_NAME,				// Window class
-		L"Puzzle",			// Window text
-		WS_OVERLAPPEDWINDOW,	// Window style
+		0,                      // Optional window styles
+		CLASS_NAME,             // Window class
+		_T("Puzzle"),           // Window text
+		WS_OVERLAPPEDWINDOW,    // Window style
 
 		// Size and position
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 
-		NULL,		// Parent window
-		NULL,		// Menu
-		hInstance,	// Instance handle
-		NULL		// Additional application data
+		NULL,       // Parent window
+		NULL,       // Menu
+		hInstance,  // Instance handle
+		NULL        // Additional application data
 	);
 
 	if (hwnd == NULL)

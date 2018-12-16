@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "draw.h"
 
 #include <d2d1.h>
