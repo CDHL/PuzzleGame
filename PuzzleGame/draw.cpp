@@ -14,8 +14,12 @@ ID2D1Factory			*g_pFactory;
 ID2D1HwndRenderTarget	*g_pRenderTarget;
 ID2D1SolidColorBrush	*g_pBrush;
 
+HWND hBtnDifficulty, hBtnRandom, hBtnAuto;
+
 // 棋盘距边缘距离/min(窗口长, 窗口宽)
-const float BORDER_GAP = 0.1f;
+constexpr float BORDER_GAP = 0.1f;
+// 棋盘&按钮长宽比
+constexpr float MAIN_SCALE = 16.0f / 9.0f;
 // 当前棋盘大小
 int g_boardSize = 4;
 // 棋盘边缘坐标（DIP）
@@ -32,18 +36,55 @@ void CalculateLayout()
 {
 	if (g_pRenderTarget != NULL)
 	{
-		D2D1_SIZE_F size = g_pRenderTarget->GetSize();
-		const float x = size.width / 2;
-		const float y = size.height / 2;
-		const float halfSideLength = (0.5f - BORDER_GAP) * 2 * min(x, y);
+		RECT rc;
 
-		g_boardLeft = x - halfSideLength;
-		g_boardTop = y - halfSideLength;
-		g_boardRight = x + halfSideLength;
-		g_boardBottom = y + halfSideLength;
+		// 获取客户区大小
+		GetClientRect(hwnd, &rc);
 
-		g_gridGap = halfSideLength * 2 / g_boardSize;
+		// 根据长宽比裁剪大小
+		int width = static_cast<int>(rc.bottom * MAIN_SCALE);
+		int height;
+
+		if (width < rc.right)
+		{
+			rc.left = (rc.right - width) / 2;
+			rc.right = (rc.right + width) / 2;
+			height = rc.bottom;
+		}
+		else
+		{
+			width = rc.right;
+			height = static_cast<int>(rc.right / MAIN_SCALE);
+			rc.top = (rc.bottom - height) / 2;
+			rc.bottom = (rc.bottom + height) / 2;
+		}
+
+		// 切掉边缘留白
+		const int horizontalGap = static_cast<int>(width * BORDER_GAP);
+		const int verticalGap = static_cast<int>(height * BORDER_GAP);
+
+		rc.left += horizontalGap;
+		rc.top += verticalGap;
+		rc.right -= horizontalGap;
+		rc.bottom -= verticalGap;
+		width = rc.right - rc.left;
+		height = rc.bottom - rc.top;
+
+		// 计算棋盘位置
+		g_boardLeft = DPIScale::PixelsToDipsX(rc.right - height);
+		g_boardTop = DPIScale::PixelsToDipsY(rc.top);
+		g_boardRight = DPIScale::PixelsToDipsX(rc.right);
+		g_boardBottom = DPIScale::PixelsToDipsY(rc.bottom);
+		g_gridGap = (g_boardRight - g_boardLeft) / g_boardSize;
+
+		// UNDONE: 计算按钮位置
+
 	}
+}
+
+void CreateButton()
+{
+
 }
 
 HRESULT CreateGraphicsResources()
@@ -58,10 +99,7 @@ HRESULT CreateGraphicsResources()
 			D2D1::RenderTargetProperties(),
 			D2D1::HwndRenderTargetProperties(
 				hwnd,
-				D2D1::SizeU(
-					rc.right - rc.left,
-					rc.bottom - rc.top
-				)
+				D2D1::SizeU(rc.right, rc.bottom)
 			),
 			&g_pRenderTarget
 		);
@@ -123,6 +161,8 @@ void PaintBoard()
 {
 	g_pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
 	D2D1_POINT_2F start, end;
+
+	// 绘制横线
 	for (int i = 0; i <= g_boardSize; ++i)
 	{
 		start.x = g_boardLeft;
@@ -135,7 +175,10 @@ void PaintBoard()
 			end,
 			g_pBrush
 		);
-
+	}
+	// 绘制竖线
+	for (int i = 0; i <= g_boardSize; ++i)
+	{
 		start.x = g_boardLeft + i * g_gridGap;
 		start.y = g_boardTop;
 		end.x = start.x;

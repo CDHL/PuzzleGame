@@ -51,6 +51,7 @@ int WINAPI _tWinMain(
 	}
 
 	ShowWindow(hwnd, nCmdShow);
+	UpdateWindow(hwnd);
 
 	// Run the message loop.
 	

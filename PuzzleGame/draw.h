@@ -6,6 +6,8 @@ extern ID2D1Factory				*g_pFactory;
 extern ID2D1HwndRenderTarget	*g_pRenderTarget;
 extern ID2D1SolidColorBrush		*g_pBrush;
 
+extern HWND hBtnDifficulty, hBtnRandom, hBtnAuto;
+
 template<class T> inline void SafeRelease(T *&ppT)
 {
 	if (ppT)
@@ -34,6 +36,18 @@ public:
 	static D2D1_POINT_2F PixelsToDips(T x, T y)
 	{
 		return D2D1::Point2F(static_cast<float>(x) / scaleX, static_cast<float>(y) / scaleY);
+	}
+
+	template<typename T>
+	static FLOAT PixelsToDipsX(T x)
+	{
+		return static_cast<float>(x) / scaleX;
+	}
+
+	template<typename T>
+	static FLOAT PixelsToDipsY(T y)
+	{
+		return static_cast<float>(y) / scaleY;
 	}
 };
 
