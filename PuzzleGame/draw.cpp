@@ -189,11 +189,12 @@ void PaintButton()
 	int cury = g_paintRect.top;
 	int dy = static_cast<int>(g_buttonHeight * (1 + BUTTON_GAP));
 
-	SetWindowPos(g_hBtnDifficulty, HWND_BOTTOM, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, SWP_SHOWWINDOW);
+	MoveWindow(g_hBtnDifficulty, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
 	InvalidateRect(g_hBtnDifficulty, NULL, FALSE);
 
 	cury += dy;
-	SetWindowPos(g_hBtnRandom, HWND_BOTTOM, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, SWP_SHOWWINDOW);
+	ShowWindow(g_hBtnRandom, SW_SHOW);
+	MoveWindow(g_hBtnRandom, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
 	InvalidateRect(g_hBtnRandom, NULL, FALSE);
 
 	// UNDONE: ÃÌº”∆‰”‡∞¥≈•

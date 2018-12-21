@@ -34,7 +34,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		DPIScale::Initialize(g_pFactory);
 
 		// 创建按钮
-		g_hBtnDifficulty = CreateWindow(_T("BUTTON"), _T("更改难度"), WS_CHILD | BS_PUSHBUTTON,
+		g_hBtnDifficulty = CreateWindow(_T("BUTTON"), _T("更改难度"), WS_CHILD | BS_PUSHBUTTON | WS_VISIBLE,
 			0, 0, 0, 0, hWnd, (HMENU)BTN_DIFFICULTY, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
 		SetWindowSubclass(g_hBtnDifficulty, BtnWindowProc, BTN_DIFFICULTY, 0);
 
