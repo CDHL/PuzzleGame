@@ -6,6 +6,7 @@
 #pragma comment(lib, "d2d1")
 
 #include "game.h"
+#include "window.h"
 
 float DPIScale::scaleX = 1.0f;
 float DPIScale::scaleY = 1.0f;
@@ -14,77 +15,71 @@ ID2D1Factory			*g_pFactory;
 ID2D1HwndRenderTarget	*g_pRenderTarget;
 ID2D1SolidColorBrush	*g_pBrush;
 
-HWND hBtnDifficulty, hBtnRandom, hBtnAuto;
-
 // 棋盘距边缘距离/min(窗口长, 窗口宽)
 constexpr float BORDER_GAP = 0.1f;
-// 棋盘&按钮长宽比
-constexpr float MAIN_SCALE = 16.0f / 9.0f;
+// 绘制矩形长宽比
+constexpr float RECT_SCALE = 16.0f / 9.0f;
+// 按钮垂直间隔/按钮高度
+constexpr float BUTTON_GAP = 1.0f / 4.0f;
 // 当前棋盘大小
 int g_boardSize = 4;
-// 棋盘边缘坐标（DIP）
-float g_boardLeft, g_boardTop, g_boardRight, g_boardBottom;
+// 绘制矩形
+RECT g_paintRect;
+// 棋盘左上角坐标（DIP）
+D2D1_POINT_2F g_boardLTPoint;
 // 单格边长（DIP）
-float g_gridGap;
+float g_gridGapX, g_gridGapY;
+// 按钮长宽
+int g_buttonWidth, g_buttonHeight;
 // 左键按下时的行列坐标
 int g_lastPointX, g_lastPointY;
-
-extern HWND hwnd;
 
 // Recalculate drawing layout when the size of the window changes.
 void CalculateLayout()
 {
 	if (g_pRenderTarget != NULL)
 	{
-		RECT rc;
-
 		// 获取客户区大小
-		GetClientRect(hwnd, &rc);
+		GetClientRect(g_hWnd, &g_paintRect);
 
 		// 根据长宽比裁剪大小
-		int width = static_cast<int>(rc.bottom * MAIN_SCALE);
+		int width = static_cast<int>(g_paintRect.bottom * RECT_SCALE);
 		int height;
 
-		if (width < rc.right)
+		if (width < g_paintRect.right)
 		{
-			rc.left = (rc.right - width) / 2;
-			rc.right = (rc.right + width) / 2;
-			height = rc.bottom;
+			g_paintRect.left = (g_paintRect.right - width) / 2;
+			g_paintRect.right = (g_paintRect.right + width) / 2;
+			height = g_paintRect.bottom;
 		}
 		else
 		{
-			width = rc.right;
-			height = static_cast<int>(rc.right / MAIN_SCALE);
-			rc.top = (rc.bottom - height) / 2;
-			rc.bottom = (rc.bottom + height) / 2;
+			width = g_paintRect.right;
+			height = static_cast<int>(g_paintRect.right / RECT_SCALE);
+			g_paintRect.top = (g_paintRect.bottom - height) / 2;
+			g_paintRect.bottom = (g_paintRect.bottom + height) / 2;
 		}
 
 		// 切掉边缘留白
 		const int horizontalGap = static_cast<int>(width * BORDER_GAP);
 		const int verticalGap = static_cast<int>(height * BORDER_GAP);
 
-		rc.left += horizontalGap;
-		rc.top += verticalGap;
-		rc.right -= horizontalGap;
-		rc.bottom -= verticalGap;
-		width = rc.right - rc.left;
-		height = rc.bottom - rc.top;
+		g_paintRect.left += horizontalGap;
+		g_paintRect.top += verticalGap;
+		g_paintRect.right -= horizontalGap;
+		g_paintRect.bottom -= verticalGap;
+		width = g_paintRect.right - g_paintRect.left;
+		height = g_paintRect.bottom - g_paintRect.top;
 
 		// 计算棋盘位置
-		g_boardLeft = DPIScale::PixelsToDipsX(rc.right - height);
-		g_boardTop = DPIScale::PixelsToDipsY(rc.top);
-		g_boardRight = DPIScale::PixelsToDipsX(rc.right);
-		g_boardBottom = DPIScale::PixelsToDipsY(rc.bottom);
-		g_gridGap = (g_boardRight - g_boardLeft) / g_boardSize;
+		g_boardLTPoint = DPIScale::PixelsToDips(g_paintRect.right - height, g_paintRect.top);
+		g_gridGapX = DPIScale::PixelsToDipsX(height) / g_boardSize;
+		g_gridGapY = DPIScale::PixelsToDipsY(height) / g_boardSize;
 
-		// UNDONE: 计算按钮位置
-
+		// 计算按钮位置
+		g_buttonWidth = width - height - horizontalGap;
+		g_buttonHeight = static_cast<int>(height / (4 + (4 - 1) * BUTTON_GAP));
 	}
-}
-
-void CreateButton()
-{
-
 }
 
 HRESULT CreateGraphicsResources()
@@ -93,12 +88,12 @@ HRESULT CreateGraphicsResources()
 	if (g_pRenderTarget == NULL)
 	{
 		RECT rc;
-		GetClientRect(hwnd, &rc);
+		GetClientRect(g_hWnd, &rc);
 
 		hr = g_pFactory->CreateHwndRenderTarget(
 			D2D1::RenderTargetProperties(),
 			D2D1::HwndRenderTargetProperties(
-				hwnd,
+				g_hWnd,
 				D2D1::SizeU(rc.right, rc.bottom)
 			),
 			&g_pRenderTarget
@@ -139,13 +134,12 @@ void OnPaint()
 	if (SUCCEEDED(hr))
 	{
 		PAINTSTRUCT ps;
-		BeginPaint(hwnd, &ps);
+		BeginPaint(g_hWnd, &ps);
 
 		g_pRenderTarget->BeginDraw();
 
 		g_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::SkyBlue));
 		PaintBoard();
-		// TODO: DrawText
 
 		hr = g_pRenderTarget->EndDraw();
 		if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
@@ -153,43 +147,56 @@ void OnPaint()
 			DiscardGraphicsResources();
 		}
 
-		EndPaint(hwnd, &ps);
+		PaintButton();
+
+		EndPaint(g_hWnd, &ps);
 	}
 }
 
 void PaintBoard()
 {
 	g_pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
-	D2D1_POINT_2F start, end;
+	const float boardBottom = g_boardLTPoint.y + g_gridGapY * g_boardSize;
+	const float boardRight = g_boardLTPoint.x + g_gridGapX * g_boardSize;
+	float tmp;
 
 	// 绘制横线
 	for (int i = 0; i <= g_boardSize; ++i)
 	{
-		start.x = g_boardLeft;
-		start.y = g_boardTop + i * g_gridGap;
-		end.x = g_boardRight;
-		end.y = start.y;
+		tmp = g_boardLTPoint.y + i * g_gridGapY;
 
 		g_pRenderTarget->DrawLine(
-			start,
-			end,
+			{ g_boardLTPoint.x, tmp },
+			{ boardRight, tmp },
 			g_pBrush
 		);
 	}
 	// 绘制竖线
 	for (int i = 0; i <= g_boardSize; ++i)
 	{
-		start.x = g_boardLeft + i * g_gridGap;
-		start.y = g_boardTop;
-		end.x = start.x;
-		end.y = g_boardBottom;
+		tmp = g_boardLTPoint.x + i * g_gridGapX;
 
 		g_pRenderTarget->DrawLine(
-			start,
-			end,
+			{ tmp, g_boardLTPoint.y },
+			{ tmp, boardBottom },
 			g_pBrush
 		);
 	}
+}
+
+void PaintButton()
+{
+	int cury = g_paintRect.top;
+	int dy = static_cast<int>(g_buttonHeight * (1 + BUTTON_GAP));
+
+	SetWindowPos(g_hBtnDifficulty, HWND_BOTTOM, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, SWP_SHOWWINDOW);
+	InvalidateRect(g_hBtnDifficulty, NULL, FALSE);
+
+	cury += dy;
+	SetWindowPos(g_hBtnRandom, HWND_BOTTOM, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, SWP_SHOWWINDOW);
+	InvalidateRect(g_hBtnRandom, NULL, FALSE);
+
+	// UNDONE: 添加其余按钮
 }
 
 void Resize()
@@ -197,12 +204,12 @@ void Resize()
 	if (g_pRenderTarget != NULL)
 	{
 		RECT rc;
-		GetClientRect(hwnd, &rc);
+		GetClientRect(g_hWnd, &rc);
 
 		D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
 
 		g_pRenderTarget->Resize(size);
 		CalculateLayout();
-		InvalidateRect(hwnd, NULL, FALSE);
+		InvalidateRect(g_hWnd, NULL, FALSE);
 	}
 }

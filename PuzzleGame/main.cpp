@@ -1,12 +1,7 @@
 #include "stdafx.h"
 
-#include <windowsx.h>
-
 #include "draw.h"
-
-HWND hwnd;
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#include "window.h"
 
 int WINAPI _tWinMain(
 	_In_ HINSTANCE hInstance, 
@@ -30,7 +25,7 @@ int WINAPI _tWinMain(
 
 	// Create the window.
 	
-	hwnd = CreateWindowEx(
+	g_hWnd = CreateWindowEx(
 		0,                      // Optional window styles
 		CLASS_NAME,             // Window class
 		_T("Puzzle"),           // Window text
@@ -45,13 +40,13 @@ int WINAPI _tWinMain(
 		NULL        // Additional application data
 	);
 
-	if (hwnd == NULL)
+	if (g_hWnd == NULL)
 	{
 		return 0;
 	}
 
-	ShowWindow(hwnd, nCmdShow);
-	UpdateWindow(hwnd);
+	ShowWindow(g_hWnd, nCmdShow);
+	UpdateWindow(g_hWnd);
 
 	// Run the message loop.
 	
@@ -62,43 +57,5 @@ int WINAPI _tWinMain(
 		DispatchMessage(&msg);
 	}
 
-	return 0;
-}
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	switch (uMsg)
-	{
-	case WM_CREATE:
-		if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &g_pFactory)))
-		{
-			return -1;
-		}
-		DPIScale::Initialize(g_pFactory);
-		return 0;
-
-	case WM_DESTROY:
-		DiscardGraphicsResources();
-		SafeRelease(g_pFactory);
-		PostQuitMessage(0);
-		return 0;
-
-	case WM_PAINT:
-		OnPaint();
-		return 0;
-
-	case WM_SIZE:
-		Resize();
-		return 0;
-
-	case WM_LBUTTONDOWN:
-		OnLButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
-		return 0;
-
-	case WM_LBUTTONUP:
-		OnLButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
-		return 0;
-	}
-
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	return msg.wParam;
 }
