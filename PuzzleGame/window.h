@@ -14,6 +14,10 @@ extern HWND g_hBtnRandom, g_hBtnSolve;
 extern HWND g_hBtnAuto, g_hBtnStop;
 extern HWND g_hBtnImage;
 
+extern bool g_isFullScreen;
+extern RECT g_lastWindowRect;
+extern LONG_PTR g_lastWindowStyle;
+
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK BtnWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,

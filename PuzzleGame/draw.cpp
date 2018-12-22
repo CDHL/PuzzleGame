@@ -34,7 +34,6 @@ int g_buttonWidth, g_buttonHeight;
 // 左键按下时的行列坐标
 int g_lastPointX, g_lastPointY;
 
-// Recalculate drawing layout when the size of the window changes.
 void CalculateLayout()
 {
 	if (g_pRenderTarget != NULL)

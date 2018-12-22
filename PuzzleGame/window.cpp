@@ -13,6 +13,13 @@ HWND g_hBtnRandom, g_hBtnSolve;
 HWND g_hBtnAuto, g_hBtnStop;
 HWND g_hBtnImage;
 
+// 当前是否处于全屏状态
+bool g_isFullScreen = false;
+// 全屏前的窗口位置
+RECT g_lastWindowRect;
+// 全屏前的窗口样式
+LONG_PTR g_lastWindowStyle;
+
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -70,12 +77,27 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		return 0;
 
-	case WM_PAINT:
-		OnPaint();
-		return 0;
-
-	case WM_SIZE:
-		Resize();
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_F11:
+			// 全屏显示
+			if (!g_isFullScreen)
+			{
+				GetWindowRect(hWnd, &g_lastWindowRect);
+				g_lastWindowStyle = SetWindowLongPtr(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+				SetWindowPos(hWnd, 0, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_FRAMECHANGED | SWP_NOZORDER);
+			}
+			// 取消全屏
+			else
+			{
+				SetWindowLongPtr(hWnd, GWL_STYLE, g_lastWindowStyle);
+				SetWindowPos(hWnd, 0, g_lastWindowRect.left, g_lastWindowRect.top, 
+					g_lastWindowRect.right - g_lastWindowRect.left, g_lastWindowRect.bottom - g_lastWindowRect.top, SWP_FRAMECHANGED | SWP_NOZORDER);
+			}
+			g_isFullScreen ^= 1;
+			break;
+		}
 		return 0;
 
 	case WM_LBUTTONDOWN:
@@ -84,6 +106,14 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_LBUTTONUP:
 		OnLButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
+		return 0;
+
+	case WM_PAINT:
+		OnPaint();
+		return 0;
+
+	case WM_SIZE:
+		Resize();
 		return 0;
 	}
 
@@ -95,6 +125,7 @@ LRESULT CALLBACK BtnWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	switch (uMsg)
 	{
 	case WM_KEYDOWN:
+		// 将消息发送给主窗口，同时拦截空格键（按下按钮）
 		SendMessage(g_hWnd, uMsg, wParam, lParam);
 		return 0;
 	}
