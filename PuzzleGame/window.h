@@ -1,11 +1,11 @@
 #pragma once
 
-#define BTN_DIFFICULTY	    0x0001
-#define BTN_RANDOM          0x0002
-#define BTN_SOLVE           0x0003
-#define BTN_AUTO            0x0004
-#define BTN_STOP            0x0005
-#define BTN_IMAGE           0x0006
+#define MBTN_DIFFICULTY	    1000
+#define MBTN_RANDOM          1001
+#define MBTN_SOLVE           1002
+#define MBTN_AUTO            1003
+#define MBTN_STOP            1004
+#define MBTN_IMAGE           1005
 
 extern HWND g_hWnd;
 
