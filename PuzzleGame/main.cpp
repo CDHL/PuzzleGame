@@ -17,7 +17,10 @@ int WINAPI _tWinMain(
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	// ≥ı ºªØCOMø‚
-	CoInitialize(NULL);
+	if (FAILED(CoInitialize(NULL)))
+	{
+		return 0;
+	}
 
 	// Register the window class.
 
@@ -37,7 +40,7 @@ int WINAPI _tWinMain(
 	g_hWnd = CreateWindowEx(
 		0,                      // Optional window styles
 		CLASS_NAME,             // Window class
-		_T("Puzzle"),           // Window text
+		_T("PuzzleGame"),           // Window text
 		WS_OVERLAPPEDWINDOW,    // Window style
 
 		// Size and position

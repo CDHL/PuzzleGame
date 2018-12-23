@@ -26,7 +26,7 @@ RECT g_paintRect;
 // 棋盘左上角坐标（DIP）
 D2D1_POINT_2F g_boardLTPoint;
 // 单格边长（DIP）
-float g_gridGapX, g_gridGapY;
+float g_pieceWidth, g_pieceHeight;
 // 按钮长宽
 int g_buttonWidth, g_buttonHeight;
 // 左键按下时的行列坐标
@@ -70,8 +70,8 @@ void CalculateLayout()
 
 		// 计算棋盘位置
 		g_boardLTPoint = DPIScale::PixelsToDips(g_paintRect.right - height, g_paintRect.top);
-		g_gridGapX = DPIScale::PixelsToDipsX(height) / g_boardSize;
-		g_gridGapY = DPIScale::PixelsToDipsY(height) / g_boardSize;
+		g_pieceWidth = DPIScale::PixelsToDipsX(height) / g_boardSize;
+		g_pieceHeight = DPIScale::PixelsToDipsY(height) / g_boardSize;
 
 		// 计算按钮位置
 		g_buttonWidth = width - height - horizontalGap;
@@ -153,14 +153,14 @@ void OnPaint()
 void PaintBoard()
 {
 	g_pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
-	const float boardBottom = g_boardLTPoint.y + g_gridGapY * g_boardSize;
-	const float boardRight = g_boardLTPoint.x + g_gridGapX * g_boardSize;
+	const float boardBottom = g_boardLTPoint.y + g_pieceHeight * g_boardSize;
+	const float boardRight = g_boardLTPoint.x + g_pieceWidth * g_boardSize;
 	float tmp;
 
 	// 绘制横线
 	for (int i = 0; i <= g_boardSize; ++i)
 	{
-		tmp = g_boardLTPoint.y + i * g_gridGapY;
+		tmp = g_boardLTPoint.y + i * g_pieceHeight;
 
 		g_pRenderTarget->DrawLine(
 			{ g_boardLTPoint.x, tmp },
@@ -171,7 +171,7 @@ void PaintBoard()
 	// 绘制竖线
 	for (int i = 0; i <= g_boardSize; ++i)
 	{
-		tmp = g_boardLTPoint.x + i * g_gridGapX;
+		tmp = g_boardLTPoint.x + i * g_pieceWidth;
 
 		g_pRenderTarget->DrawLine(
 			{ tmp, g_boardLTPoint.y },

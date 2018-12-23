@@ -5,6 +5,7 @@
 #include <windowsx.h>
 
 #include "draw.h"
+#include "resource.h"
 
 HWND g_hWnd;
 
@@ -46,6 +47,12 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		DPIScale::Initialize(g_pID2D1Factory);
 
+		// 添加"关于"项到窗口菜单
+		{
+			HMENU hMenu = GetSystemMenu(hWnd, FALSE);
+			AppendMenu(hMenu, MF_SEPARATOR, 0, 0);         // 添加水平分割线
+			AppendMenu(hMenu, MF_STRING, MMENU_ABOUT, _T("关于 PuzzleGame(&A)..."));
+		}
 		// 创建按钮
 		{
 			HINSTANCE hInstance = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
@@ -122,6 +129,16 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 		Resize();
 		return 0;
+
+	case WM_SYSCOMMAND:
+		switch (wParam & 0xFFF0)
+		{
+		// 在窗口菜单中点击"关于"项
+		case MMENU_ABOUT:
+			DialogBox(NULL, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, AboutDialogProc);
+			return 0;
+		}
+		break;
 	}
 
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -138,4 +155,38 @@ LRESULT CALLBACK BtnWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	}
 
 	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
+
+INT_PTR CALLBACK AboutDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_COMMAND:
+		switch (wParam)
+		{
+		case IDOK:
+		case IDCANCEL:
+			EndDialog(hWnd, 0);
+			return TRUE;
+		}
+		break;
+
+	case WM_INITDIALOG:
+		// 居中对话框（相对父窗口）
+		{
+			HWND hWndOwner = GetParent(hWnd);
+			RECT rcDlg, rcOwner;
+
+			GetWindowRect(hWnd, &rcDlg);
+			GetWindowRect(hWndOwner, &rcOwner);
+
+			SetWindowPos(hWnd, HWND_TOP,
+				(rcOwner.left + rcOwner.right - (rcDlg.right - rcDlg.left)) / 2,
+				(rcOwner.top + rcOwner.bottom - (rcDlg.bottom - rcDlg.top)) / 2,
+				0, 0, SWP_NOSIZE);
+		}
+		return TRUE;
+	}
+
+	return FALSE;
 }
