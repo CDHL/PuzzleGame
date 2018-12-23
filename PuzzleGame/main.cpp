@@ -1,5 +1,8 @@
 #include "stdafx.h"
 
+#include <cstdlib>
+#include <ctime>
+
 #include "draw.h"
 #include "window.h"
 
@@ -10,6 +13,12 @@ int WINAPI _tWinMain(
 	_In_ int nCmdShow
 )
 {
+	// 使用时间作为rand的种子
+	srand(static_cast<unsigned int>(time(NULL)));
+
+	// 初始化COM库
+	CoInitialize(NULL);
+
 	// Register the window class.
 
 	const TCHAR CLASS_NAME[] = _T("PuzzleGame Window Class");
@@ -56,6 +65,9 @@ int WINAPI _tWinMain(
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	// 取消初始化COM库
+	CoUninitialize();
 
 	return msg.wParam;
 }

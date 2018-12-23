@@ -1,10 +1,13 @@
 #pragma once
 
 #include <d2d1.h>
+#pragma comment(lib, "d2d1")
+#include <wincodec.h>
 
-extern ID2D1Factory				*g_pFactory;
-extern ID2D1HwndRenderTarget	*g_pRenderTarget;
-extern ID2D1SolidColorBrush		*g_pBrush;
+extern ID2D1Factory            *g_pID2D1Factory;
+extern ID2D1HwndRenderTarget   *g_pRenderTarget;
+extern ID2D1SolidColorBrush    *g_pBrush;
+extern IWICImagingFactory      *g_pIWICFactory;
 
 template <class T> inline void SafeRelease(T *&ppT)
 {

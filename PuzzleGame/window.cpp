@@ -34,11 +34,17 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_CREATE:
-		if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &g_pFactory)))
+		// 创建WIC工厂
+		if (FAILED(CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&g_pIWICFactory))))
 		{
 			return -1;
 		}
-		DPIScale::Initialize(g_pFactory);
+		// 创建Direct2D工厂
+		if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &g_pID2D1Factory)))
+		{
+			return -1;
+		}
+		DPIScale::Initialize(g_pID2D1Factory);
 
 		// 创建按钮
 		{
@@ -64,7 +70,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				0, 0, 0, 0, hWnd, (HMENU)MBTN_STOP, hInstance, NULL);
 			SetWindowSubclass(g_hBtnStop, BtnWindowProc, MBTN_STOP, 0);
 
-			g_hBtnImage = CreateWindow(_T("BUTTON"), _T("自定义图片"), WS_CHILD | BS_PUSHBUTTON,
+			g_hBtnImage = CreateWindow(_T("BUTTON"), _T("自定义图片..."), WS_CHILD | BS_PUSHBUTTON | WS_VISIBLE,
 				0, 0, 0, 0, hWnd, (HMENU)MBTN_IMAGE, hInstance, NULL);
 			SetWindowSubclass(g_hBtnImage, BtnWindowProc, MBTN_IMAGE, 0);
 		}
@@ -73,7 +79,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_DESTROY:
 		DiscardGraphicsResources();
-		SafeRelease(g_pFactory);
+		SafeRelease(g_pID2D1Factory);
+		SafeRelease(g_pIWICFactory);
 		PostQuitMessage(0);
 		return 0;
 
@@ -125,7 +132,7 @@ LRESULT CALLBACK BtnWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	switch (uMsg)
 	{
 	case WM_KEYDOWN:
-		// 将消息发送给主窗口，同时拦截空格键（按下按钮）
+		// 将键盘消息发送给主窗口，同时拦截空格键（按下按钮）
 		SendMessage(g_hWnd, uMsg, wParam, lParam);
 		return 0;
 	}

@@ -2,18 +2,16 @@
 
 #include "draw.h"
 
-#include <d2d1.h>
-#pragma comment(lib, "d2d1")
-
 #include "game.h"
 #include "window.h"
 
 float DPIScale::scaleX = 1.0f;
 float DPIScale::scaleY = 1.0f;
 
-ID2D1Factory			*g_pFactory;
+ID2D1Factory			*g_pID2D1Factory;
 ID2D1HwndRenderTarget	*g_pRenderTarget;
 ID2D1SolidColorBrush	*g_pBrush;
+IWICImagingFactory      *g_pIWICFactory;
 
 // ∆Â≈Ãæ‡±ﬂ‘µæ‡¿Î/min(¥∞ø⁄≥§, ¥∞ø⁄øÌ)
 constexpr float BORDER_GAP = 0.1f;
@@ -89,7 +87,7 @@ HRESULT CreateGraphicsResources()
 		RECT rc;
 		GetClientRect(g_hWnd, &rc);
 
-		hr = g_pFactory->CreateHwndRenderTarget(
+		hr = g_pID2D1Factory->CreateHwndRenderTarget(
 			D2D1::RenderTargetProperties(),
 			D2D1::HwndRenderTargetProperties(
 				g_hWnd,
@@ -195,6 +193,12 @@ void PaintButton()
 	ShowWindow(g_hBtnRandom, SW_SHOW);
 	MoveWindow(g_hBtnRandom, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
 	InvalidateRect(g_hBtnRandom, NULL, FALSE);
+
+	cury += dy;
+
+	cury += dy;
+	MoveWindow(g_hBtnImage, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
+	InvalidateRect(g_hBtnImage, NULL, FALSE);
 
 	// UNDONE: ÃÌº”∆‰”‡∞¥≈•
 }
