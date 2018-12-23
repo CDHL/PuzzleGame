@@ -193,6 +193,7 @@ INT_PTR CALLBACK AboutDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case NM_CLICK:          // Fall through to the next case.
 
 		case NM_RETURN:
+			// NOT supported MultiByte
 			ShellExecute(NULL, L"open", ((PNMLINK)lParam)->item.szUrl, NULL, NULL, SW_SHOW);
 			return TRUE;
 		}
