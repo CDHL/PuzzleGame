@@ -99,6 +99,8 @@ For more information, please visit https://docs.microsoft.com/en-us/windows/desk
 		switch (wParam)
 		{
 		case VK_F11:
+			// 是否为自动重复功能产生
+			if (lParam & 0x40000000) break;
 			// 全屏显示
 			if (!g_isFullScreen)
 			{
