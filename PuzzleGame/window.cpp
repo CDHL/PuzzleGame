@@ -57,6 +57,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			HINSTANCE hInstance = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
 
+#ifndef _UNICODE
+#error ComCtl32.dll version 6 is Unicode only. \
+For more information, please visit https://docs.microsoft.com/en-us/windows/desktop/controls/subclassing-overview
+#endif
 			g_hBtnDifficulty = CreateWindow(_T("BUTTON"), _T("更改难度"), WS_CHILD | BS_PUSHBUTTON | WS_VISIBLE,
 				0, 0, 0, 0, hWnd, (HMENU)MBTN_DIFFICULTY, hInstance, NULL);
 			SetWindowSubclass(g_hBtnDifficulty, BtnWindowProc, MBTN_DIFFICULTY, 0);
