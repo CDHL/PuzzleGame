@@ -186,6 +186,17 @@ INT_PTR CALLBACK AboutDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				0, 0, SWP_NOSIZE);
 		}
 		return TRUE;
+
+	case WM_NOTIFY:
+		switch (((LPNMHDR)lParam)->code)
+		{
+		case NM_CLICK:          // Fall through to the next case.
+
+		case NM_RETURN:
+			ShellExecute(NULL, L"open", ((PNMLINK)lParam)->item.szUrl, NULL, NULL, SW_SHOW);
+			return TRUE;
+		}
+		break;
 	}
 
 	return FALSE;
