@@ -80,3 +80,6 @@ void PaintButton();
 
 // 调整窗口大小
 void Resize();
+
+// 更改图片文件
+void SetImageFile(PCTSTR fileName);

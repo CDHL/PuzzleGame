@@ -21,16 +21,102 @@ RECT g_lastWindowRect;
 // 全屏前的窗口样式
 LONG_PTR g_lastWindowStyle;
 
+INT_PTR CALLBACK AboutDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_COMMAND:
+		switch (wParam)
+		{
+		case IDOK:
+		case IDCANCEL:
+			EndDialog(hWnd, 0);
+			return TRUE;
+		}
+		break;
+
+	case WM_INITDIALOG:
+		// 居中对话框（相对父窗口）
+	{
+		HWND hWndOwner = GetParent(hWnd);
+		RECT rcDlg, rcOwner;
+
+		GetWindowRect(hWnd, &rcDlg);
+		GetWindowRect(hWndOwner, &rcOwner);
+
+		SetWindowPos(hWnd, HWND_TOP,
+			(rcOwner.left + rcOwner.right - (rcDlg.right - rcDlg.left)) / 2,
+			(rcOwner.top + rcOwner.bottom - (rcDlg.bottom - rcDlg.top)) / 2,
+			0, 0, SWP_NOSIZE);
+	}
+	return TRUE;
+
+	case WM_NOTIFY:
+		switch (((LPNMHDR)lParam)->code)
+		{
+		case NM_CLICK:          // Fall through to the next case.
+
+		case NM_RETURN:
+			// NOT supported MultiByte
+			ShellExecute(NULL, L"open", ((PNMLINK)lParam)->item.szUrl, NULL, NULL, SW_SHOW);
+			return TRUE;
+		}
+		break;
+	}
+
+	return FALSE;
+}
+
+LRESULT CALLBACK BtnWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	switch (uMsg)
+	{
+	case WM_KEYDOWN:
+		// 将键盘消息发送给主窗口，同时拦截空格键（按下按钮）
+		SendMessage(g_hWnd, uMsg, wParam, lParam);
+		return 0;
+	}
+
+	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
+
+void OnSelectImage()
+{
+	TCHAR fileName[260] = _T("");
+	OPENFILENAME ofn = {sizeof(OPENFILENAME)};
+	ofn.hwndOwner = g_hWnd;                     // 所有者窗口句柄
+	ofn.lpstrFilter = _T("All files\0*.*\0PNG File\0*.png\0");	// 过滤器
+//	ofn.lpstrCustomFilter = NULL;               // 不保留用户定义的过滤器模式
+	ofn.nFilterIndex = 2;                       // 默认选中的过滤器索引（第一对字符串的索引值为1，第二对字符串为2，依此类推。索引为零表示由lpstrCustomFilter指定的自定义筛选器	。）
+	ofn.lpstrFile = fileName;
+	ofn.nMaxFile = 260;
+//	ofn.lpstrFileTitle = NULL;                  // 所选文件的文件名和扩展名（没有路径信息）。该成员可以为NULL。
+//	ofn.lpstrInitialDir = NULL;                 // 初始目录
+//	ofn.lpstrTitle = NULL;                      // 要放在对话框标题栏中的字符串。如果此成员为NULL，则系统使用默认标题（即“另存为”或“打开”）。
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	if (GetOpenFileName(&ofn))
+	{
+		SetImageFile(fileName);
+	}
+}
+
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
 	case WM_COMMAND:
-		switch (LOWORD(wParam))
+		if (lParam && HIWORD(wParam) == BN_CLICKED)
 		{
-		case MBTN_DIFFICULTY:
-			OutputDebugString(_T("BTN CLICK\n"));
-			break;
+			switch (LOWORD(wParam))
+			{
+			case MBTN_DIFFICULTY:
+				OutputDebugString(_T("BTN CLICK\n"));
+				break;
+
+			case MBTN_IMAGE:
+				OnSelectImage();
+				break;
+			}
 		}
 		return 0;
 
@@ -148,63 +234,4 @@ For more information, please visit https://docs.microsoft.com/en-us/windows/desk
 	}
 
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-LRESULT CALLBACK BtnWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
-{
-	switch (uMsg)
-	{
-	case WM_KEYDOWN:
-		// 将键盘消息发送给主窗口，同时拦截空格键（按下按钮）
-		SendMessage(g_hWnd, uMsg, wParam, lParam);
-		return 0;
-	}
-
-	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-}
-
-INT_PTR CALLBACK AboutDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	switch (uMsg)
-	{
-	case WM_COMMAND:
-		switch (wParam)
-		{
-		case IDOK:
-		case IDCANCEL:
-			EndDialog(hWnd, 0);
-			return TRUE;
-		}
-		break;
-
-	case WM_INITDIALOG:
-		// 居中对话框（相对父窗口）
-		{
-			HWND hWndOwner = GetParent(hWnd);
-			RECT rcDlg, rcOwner;
-
-			GetWindowRect(hWnd, &rcDlg);
-			GetWindowRect(hWndOwner, &rcOwner);
-
-			SetWindowPos(hWnd, HWND_TOP,
-				(rcOwner.left + rcOwner.right - (rcDlg.right - rcDlg.left)) / 2,
-				(rcOwner.top + rcOwner.bottom - (rcDlg.bottom - rcDlg.top)) / 2,
-				0, 0, SWP_NOSIZE);
-		}
-		return TRUE;
-
-	case WM_NOTIFY:
-		switch (((LPNMHDR)lParam)->code)
-		{
-		case NM_CLICK:          // Fall through to the next case.
-
-		case NM_RETURN:
-			// NOT supported MultiByte
-			ShellExecute(NULL, L"open", ((PNMLINK)lParam)->item.szUrl, NULL, NULL, SW_SHOW);
-			return TRUE;
-		}
-		break;
-	}
-
-	return FALSE;
 }

@@ -217,3 +217,8 @@ void Resize()
 		InvalidateRect(g_hWnd, NULL, FALSE);
 	}
 }
+
+void SetImageFile(PCTSTR fileName)
+{
+	
+}
