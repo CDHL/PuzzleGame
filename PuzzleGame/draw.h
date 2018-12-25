@@ -82,4 +82,4 @@ void PaintButton();
 void Resize();
 
 // 更改图片文件
-void SetImageFile(PCTSTR fileName);
+HRESULT SetImageFile(PCTSTR fileName);

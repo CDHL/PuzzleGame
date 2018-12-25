@@ -11,6 +11,7 @@ float DPIScale::scaleY = 1.0f;
 ID2D1Factory			*g_pID2D1Factory;
 ID2D1HwndRenderTarget	*g_pRenderTarget;
 ID2D1SolidColorBrush	*g_pBrush;
+ID2D1Bitmap             *g_pBitmap;
 IWICImagingFactory      *g_pIWICFactory;
 
 // 棋盘距边缘距离/min(窗口长, 窗口宽)
@@ -102,7 +103,13 @@ HRESULT CreateGraphicsResources()
 
 			if (SUCCEEDED(hr))
 			{
-				CalculateLayout();
+				// UNDONE: 从资源加载位图
+				hr = SetImageFile(_T("C:\\Users\\18201\\source\\repos\\PuzzleGame\\PuzzleGame\\IMG_0168.JPG"));
+
+				if (SUCCEEDED(hr))
+				{
+					CalculateLayout();
+				}
 			}
 		}
 	}
@@ -113,6 +120,7 @@ void DiscardGraphicsResources()
 {
 	SafeRelease(g_pRenderTarget);
 	SafeRelease(g_pBrush);
+	SafeRelease(g_pBitmap);
 }
 
 void OnLButtonDown(int pixelX, int pixelY, DWORD flags)
@@ -152,10 +160,58 @@ void OnPaint()
 
 void PaintBoard()
 {
-	g_pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
 	const float boardBottom = g_boardLTPoint.y + g_pieceHeight * g_boardSize;
 	const float boardRight = g_boardLTPoint.x + g_pieceWidth * g_boardSize;
+	D2D1_SIZE_F size = g_pBitmap->GetSize();
+	D2D1_POINT_2F bmpLTPoint;
+	float bmpSideLength;
+	PosInfo pos;
 	float tmp;
+
+	if (size.width < size.height)
+	{
+		bmpLTPoint.x = 0.0f;
+		bmpLTPoint.y = (size.height - size.width) / 2;
+		bmpSideLength = size.width / g_boardSize;
+	}
+	else
+	{
+		bmpLTPoint.y = 0.0f;
+		bmpLTPoint.x = (size.width - size.height) / 2;
+		bmpSideLength = size.height / g_boardSize;
+	}
+
+	for (int row = 0; row < g_boardSize; ++row)
+	{
+		for (int col = 0; col < g_boardSize; ++col)
+		{
+			if (g_boardSize == 3) pos = g_board3.getPiecePos({ row, col });
+			else if (g_boardSize == 4) pos = g_board4.getPiecePos({ row, col });
+			else if (g_boardSize == 5) pos = g_board5.getPiecePos({ row, col });
+			if (pos.row != g_boardSize - 1 || pos.col != g_boardSize - 1)
+			{
+				g_pRenderTarget->DrawBitmap(
+					g_pBitmap,
+					D2D1::RectF(
+						g_boardLTPoint.x + col * g_pieceWidth,
+						g_boardLTPoint.y + row * g_pieceHeight,
+						g_boardLTPoint.x + (col + 1) * g_pieceWidth,
+						g_boardLTPoint.y + (row + 1) * g_pieceHeight
+					),
+					1.0f,
+					D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+					D2D1::RectF(
+						bmpLTPoint.x + pos.col * bmpSideLength,
+						bmpLTPoint.y + pos.row * bmpSideLength,
+						bmpLTPoint.x + (pos.col + 1) * bmpSideLength,
+						bmpLTPoint.y + (pos.row + 1) * bmpSideLength
+					)
+				);
+			}
+		}
+	}
+
+	g_pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
 
 	// 绘制横线
 	for (int i = 0; i <= g_boardSize; ++i)
@@ -218,7 +274,61 @@ void Resize()
 	}
 }
 
-void SetImageFile(PCTSTR fileName)
+HRESULT SetImageFile(PCTSTR fileName)
 {
+	HRESULT hr = S_OK;
+
+	IWICBitmapDecoder *pDecoder = NULL;
+	IWICBitmapFrameDecode *pSource = NULL;
+	IWICFormatConverter *pConverter = NULL;
+
+	hr = g_pIWICFactory->CreateDecoderFromFilename(
+		fileName,
+		NULL,
+		GENERIC_READ, 
+		WICDecodeMetadataCacheOnLoad,
+		&pDecoder
+	);
 	
+	if (SUCCEEDED(hr))
+	{
+		// Create the initial frame.
+		hr = pDecoder->GetFrame(0, &pSource);
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		// Convert the image format to 32bppPBGRA
+		// (DXGI_FORMAT_B8G8R8A8_UNORM + D2D1_ALPHA_MODE_PREMULTIPLIED).
+		hr = g_pIWICFactory->CreateFormatConverter(&pConverter);
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		hr = pConverter->Initialize(
+			pSource,
+			GUID_WICPixelFormat32bppPBGRA,
+			WICBitmapDitherTypeNone,
+			NULL,
+			0.f,
+			WICBitmapPaletteTypeMedianCut
+		);
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		SafeRelease(g_pBitmap);
+		// Create a Direct2D bitmap from the WIC bitmap.
+		hr = g_pRenderTarget->CreateBitmapFromWicBitmap(
+			pConverter,
+			NULL,
+			&g_pBitmap
+		);
+	}
+
+	SafeRelease(pDecoder);
+	SafeRelease(pSource);
+	SafeRelease(pConverter);
+
+	return hr;
 }
