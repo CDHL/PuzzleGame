@@ -11,6 +11,8 @@ extern ID2D1HwndRenderTarget   *g_pRenderTarget;
 extern ID2D1SolidColorBrush    *g_pBrush;
 extern IWICImagingFactory      *g_pIWICFactory;
 
+extern int g_boardSize;
+
 template <class T> inline void SafeRelease(T *&ppT)
 {
 	if (ppT)

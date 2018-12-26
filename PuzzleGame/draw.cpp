@@ -21,7 +21,7 @@ constexpr float RECT_SCALE = 16.0f / 9.0f;
 // 按钮垂直间隔/按钮高度
 constexpr float BUTTON_GAP = 1.0f / 4.0f;
 // 当前棋盘大小
-int g_boardSize = 3;
+int g_boardSize = 4;
 // 绘制矩形
 RECT g_paintRect;
 // 棋盘左上角坐标（DIP）
@@ -240,14 +240,29 @@ void PaintButton()
 {
 	int cury = g_paintRect.top;
 	int dy = static_cast<int>(g_buttonHeight * (1 + BUTTON_GAP));
+	bool isSolved;
 
 	MoveWindow(g_hBtnDifficulty, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
 	InvalidateRect(g_hBtnDifficulty, NULL, FALSE);
 
 	cury += dy;
-	ShowWindow(g_hBtnRandom, SW_SHOW);
-	MoveWindow(g_hBtnRandom, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
-	InvalidateRect(g_hBtnRandom, NULL, FALSE);
+	if (g_boardSize == 3) isSolved = g_board3.isFinished();
+	else if (g_boardSize == 4) isSolved = g_board4.isFinished();
+	else if (g_boardSize == 5) isSolved = g_board5.isFinished();
+	if (isSolved)
+	{
+		ShowWindow(g_hBtnRandom, SW_SHOW);
+		ShowWindow(g_hBtnSolve, SW_HIDE);
+		MoveWindow(g_hBtnRandom, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
+		InvalidateRect(g_hBtnRandom, NULL, FALSE);
+	}
+	else
+	{
+		ShowWindow(g_hBtnSolve, SW_SHOW);
+		ShowWindow(g_hBtnRandom, SW_HIDE);
+		MoveWindow(g_hBtnSolve, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
+		InvalidateRect(g_hBtnSolve, NULL, FALSE);
+	}
 
 	cury += dy;
 
@@ -328,7 +343,6 @@ HRESULT SetImageFile(PCTSTR fileName)
 		{
 			SafeRelease(g_pBitmap);
 			g_pBitmap = tpBitmap;
-			InvalidateRect(g_hWnd, NULL, FALSE);
 
 			D2D1_SIZE_F size = g_pBitmap->GetSize();
 
@@ -344,6 +358,8 @@ HRESULT SetImageFile(PCTSTR fileName)
 				g_bmpLTPoint.x = (size.width - size.height) / 2;
 				g_bmpSideLength = size.height;
 			}
+
+			InvalidateRect(g_hWnd, NULL, FALSE);
 		}
 	}
 

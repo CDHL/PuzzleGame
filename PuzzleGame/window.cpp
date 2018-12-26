@@ -111,7 +111,25 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			switch (LOWORD(wParam))
 			{
 			case MBTN_DIFFICULTY:
-				OutputDebugString(_T("BTN CLICK\n"));
+				if (g_boardSize == 3) g_boardSize = 4;
+				else if (g_boardSize == 4) g_boardSize = 5;
+				else if (g_boardSize == 5) g_boardSize = 3;
+				CalculateLayout();
+				InvalidateRect(hWnd, NULL, FALSE);
+				break;
+
+			case MBTN_RANDOM:
+				if (g_boardSize == 3) g_board3.random_shuffle();
+				else if (g_boardSize == 4) g_board4.random_shuffle();
+				else if (g_boardSize == 5) g_board5.random_shuffle();
+				InvalidateRect(hWnd, NULL, FALSE);
+				break;
+
+			case MBTN_SOLVE:
+				if (g_boardSize == 3) g_board3.clear();
+				else if (g_boardSize == 4) g_board4.clear();
+				else if (g_boardSize == 5) g_board5.clear();
+				InvalidateRect(hWnd, NULL, FALSE);
 				break;
 
 			case MBTN_IMAGE:

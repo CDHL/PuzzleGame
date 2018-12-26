@@ -92,6 +92,15 @@ public:
 		return { num / BOARD_SIZE, num % BOARD_SIZE };
 	}
 
+	bool isFinished()
+	{
+		for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; ++i)
+		{
+			if (m_board[i] != i) return false;
+		}
+		return true;
+	}
+
 	// 返回是否成功移动
 	bool move(MoveInfo mov)
 	{
@@ -135,7 +144,7 @@ public:
 		for (int i = 0; i < BOARD_SIZE * BOARD_SIZE - 1; ++i)
 		{
 			pos = i + rand() % (BOARD_SIZE * BOARD_SIZE - i);
-			if (pos == BOARD_SIZE * BOARD_SIZE - 1)
+			if (pos == BOARD_SIZE * BOARD_SIZE - 1 && m_empty == BOARD_SIZE * BOARD_SIZE - 1)
 			{
 				m_empty = i;
 				//原理: rev ^= (BOARD_SIZE * BOARD_SIZE - 1 - 1) - i;
