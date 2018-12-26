@@ -5,6 +5,7 @@
 #include <windowsx.h>
 
 #include "draw.h"
+#include "game.h"
 #include "resource.h"
 
 HWND g_hWnd;
@@ -85,9 +86,9 @@ void OnSelectImage()
 	TCHAR fileName[260] = _T("");
 	OPENFILENAME ofn = {sizeof(OPENFILENAME)};
 	ofn.hwndOwner = g_hWnd;                     // 所有者窗口句柄
-	ofn.lpstrFilter = _T("All files\0*.*\0PNG File\0*.png\0");	// 过滤器
+	ofn.lpstrFilter = _T("所有图片文件\0*.bmp;*.dib;*.jpg;*.jpeg;*.jpe;*.gif;*.tif;*.tiff;*.png;*.ico\0所有文件\0*.*\0");	// 过滤器
 //	ofn.lpstrCustomFilter = NULL;               // 不保留用户定义的过滤器模式
-	ofn.nFilterIndex = 2;                       // 默认选中的过滤器索引（第一对字符串的索引值为1，第二对字符串为2，依此类推。索引为零表示由lpstrCustomFilter指定的自定义筛选器	。）
+	ofn.nFilterIndex = 1;                       // 默认选中的过滤器索引（第一对字符串的索引值为1，第二对字符串为2，依此类推。索引为零表示由lpstrCustomFilter指定的自定义筛选器	。）
 	ofn.lpstrFile = fileName;
 	ofn.nMaxFile = 260;
 //	ofn.lpstrFileTitle = NULL;                  // 所选文件的文件名和扩展名（没有路径信息）。该成员可以为NULL。
@@ -202,6 +203,30 @@ For more information, please visit https://docs.microsoft.com/en-us/windows/desk
 					g_lastWindowRect.right - g_lastWindowRect.left, g_lastWindowRect.bottom - g_lastWindowRect.top, SWP_FRAMECHANGED | SWP_NOZORDER);
 			}
 			g_isFullScreen ^= 1;
+			break;
+
+		case 'W':
+
+		case VK_UP:
+			OnMove(MOVE_UP);
+			break;
+
+		case 'S':
+
+		case VK_DOWN:
+			OnMove(MOVE_DOWN);
+			break;
+
+		case 'A':
+
+		case VK_LEFT:
+			OnMove(MOVE_LEFT);
+			break;
+
+		case 'D':
+
+		case VK_RIGHT:
+			OnMove(MOVE_RIGHT);
 			break;
 		}
 		return 0;

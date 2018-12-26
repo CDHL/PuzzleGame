@@ -4,6 +4,8 @@
 #pragma comment(lib, "d2d1")
 #include <wincodec.h>
 
+#include "game.h"
+
 extern ID2D1Factory            *g_pID2D1Factory;
 extern ID2D1HwndRenderTarget   *g_pRenderTarget;
 extern ID2D1SolidColorBrush    *g_pBrush;
@@ -68,6 +70,9 @@ void OnLButtonDown(int pixelX, int pixelY, DWORD flags);
 
 // ×ó¼üËÉ¿ª
 void OnLButtonUp(int pixelX, int pixelY, DWORD flags);
+
+// ÒÆ¶¯Í¼¿é
+void OnMove(MoveInfo mov);
 
 // »æÖÆ´°¿Ú
 void OnPaint();

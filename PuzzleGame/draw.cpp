@@ -21,7 +21,7 @@ constexpr float RECT_SCALE = 16.0f / 9.0f;
 // 按钮垂直间隔/按钮高度
 constexpr float BUTTON_GAP = 1.0f / 4.0f;
 // 当前棋盘大小
-int g_boardSize = 4;
+int g_boardSize = 3;
 // 绘制矩形
 RECT g_paintRect;
 // 棋盘左上角坐标（DIP）
@@ -30,8 +30,10 @@ D2D1_POINT_2F g_boardLTPoint;
 float g_pieceWidth, g_pieceHeight;
 // 按钮长宽
 int g_buttonWidth, g_buttonHeight;
-// 左键按下时的行列坐标
-int g_lastPointX, g_lastPointY;
+// 位图左上角坐标
+D2D1_POINT_2F g_bmpLTPoint;
+// 位图较短边长度
+float g_bmpSideLength;
 
 void CalculateLayout()
 {
@@ -133,6 +135,18 @@ void OnLButtonUp(int pixelX, int pixelY, DWORD flags)
 	
 }
 
+void OnMove(MoveInfo mov)
+{
+	bool res;
+	if (g_boardSize == 3) res = g_board3.move(mov);
+	else if (g_boardSize == 4) res = g_board4.move(mov);
+	else if (g_boardSize == 5) res = g_board5.move(mov);
+	if (res)
+	{
+		InvalidateRect(g_hWnd, NULL, FALSE);
+	}
+}
+
 void OnPaint()
 {
 	HRESULT hr = CreateGraphicsResources();
@@ -162,24 +176,9 @@ void PaintBoard()
 {
 	const float boardBottom = g_boardLTPoint.y + g_pieceHeight * g_boardSize;
 	const float boardRight = g_boardLTPoint.x + g_pieceWidth * g_boardSize;
-	D2D1_SIZE_F size = g_pBitmap->GetSize();
-	D2D1_POINT_2F bmpLTPoint;
-	float bmpSideLength;
+	float bmpPieceSideLength = g_bmpSideLength / g_boardSize;
 	PosInfo pos;
 	float tmp;
-
-	if (size.width < size.height)
-	{
-		bmpLTPoint.x = 0.0f;
-		bmpLTPoint.y = (size.height - size.width) / 2;
-		bmpSideLength = size.width / g_boardSize;
-	}
-	else
-	{
-		bmpLTPoint.y = 0.0f;
-		bmpLTPoint.x = (size.width - size.height) / 2;
-		bmpSideLength = size.height / g_boardSize;
-	}
 
 	for (int row = 0; row < g_boardSize; ++row)
 	{
@@ -201,10 +200,10 @@ void PaintBoard()
 					1.0f,
 					D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
 					D2D1::RectF(
-						bmpLTPoint.x + pos.col * bmpSideLength,
-						bmpLTPoint.y + pos.row * bmpSideLength,
-						bmpLTPoint.x + (pos.col + 1) * bmpSideLength,
-						bmpLTPoint.y + (pos.row + 1) * bmpSideLength
+						g_bmpLTPoint.x + pos.col * bmpPieceSideLength,
+						g_bmpLTPoint.y + pos.row * bmpPieceSideLength,
+						g_bmpLTPoint.x + (pos.col + 1) * bmpPieceSideLength,
+						g_bmpLTPoint.y + (pos.row + 1) * bmpPieceSideLength
 					)
 				);
 			}
@@ -317,13 +316,35 @@ HRESULT SetImageFile(PCTSTR fileName)
 
 	if (SUCCEEDED(hr))
 	{
-		SafeRelease(g_pBitmap);
+		ID2D1Bitmap *tpBitmap;
 		// Create a Direct2D bitmap from the WIC bitmap.
 		hr = g_pRenderTarget->CreateBitmapFromWicBitmap(
 			pConverter,
 			NULL,
-			&g_pBitmap
+			&tpBitmap
 		);
+
+		if (SUCCEEDED(hr))
+		{
+			SafeRelease(g_pBitmap);
+			g_pBitmap = tpBitmap;
+			InvalidateRect(g_hWnd, NULL, FALSE);
+
+			D2D1_SIZE_F size = g_pBitmap->GetSize();
+
+			if (size.width < size.height)
+			{
+				g_bmpLTPoint.x = 0.0f;
+				g_bmpLTPoint.y = (size.height - size.width) / 2;
+				g_bmpSideLength = size.width;
+			}
+			else
+			{
+				g_bmpLTPoint.y = 0.0f;
+				g_bmpLTPoint.x = (size.width - size.height) / 2;
+				g_bmpSideLength = size.height;
+			}
+		}
 	}
 
 	SafeRelease(pDecoder);

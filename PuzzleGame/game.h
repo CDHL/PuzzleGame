@@ -49,6 +49,14 @@ public:
 	}
 };
 
+enum MoveInfo
+{
+	MOVE_UP = 0,
+	MOVE_DOWN = 1,
+	MOVE_LEFT = 2,
+	MOVE_RIGHT = 3
+};
+
 struct PosInfo
 {
 	int row;
@@ -82,6 +90,41 @@ public:
 	{
 		const int num = m_board[pos.row * BOARD_SIZE + pos.col];
 		return { num / BOARD_SIZE, num % BOARD_SIZE };
+	}
+
+	// 返回是否成功移动
+	bool move(MoveInfo mov)
+	{
+		int nextEmpty;
+		bool res;
+		switch (mov)
+		{
+		case MOVE_UP:
+			nextEmpty = m_empty + BOARD_SIZE;
+			res = nextEmpty < BOARD_SIZE * BOARD_SIZE;
+			break;
+
+		case MOVE_DOWN:
+			nextEmpty = m_empty - BOARD_SIZE;
+			res = nextEmpty >= 0;
+			break;
+
+		case MOVE_LEFT:
+			nextEmpty = m_empty + 1;
+			res = nextEmpty % BOARD_SIZE != 0;
+			break;
+
+		case MOVE_RIGHT:
+			nextEmpty = m_empty - 1;
+			res = m_empty % BOARD_SIZE != 0;
+			break;
+		}
+		if (res)
+		{
+			std::swap(m_board[m_empty], m_board[nextEmpty]);
+			m_empty = nextEmpty;
+		}
+		return res;
 	}
 
 	void random_shuffle()
