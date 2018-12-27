@@ -260,7 +260,18 @@ HRESULT LoadResourceBitmap()
 
 void OnLButtonDown(int pixelX, int pixelY, DWORD flags)
 {
-	
+	const int boardLeft = g_paintRect.right - (g_paintRect.bottom - g_paintRect.top);
+	const int boardTop = g_paintRect.top;
+	const int pieceWidth = (g_paintRect.right - boardLeft) / g_boardSize;
+	const int pieceHeight = (g_paintRect.bottom - boardTop) / g_boardSize;
+	int posX = (pixelX - boardLeft) < 0 ? -1 : (pixelX - boardLeft) / pieceWidth;
+	int posY = (pixelY - boardTop) < 0 ? -1 : (pixelY - boardTop) / pieceHeight;
+	PosInfo pos = { posY, posX };
+	bool res;
+	if (g_boardSize == 3) res = g_board3.click(pos);
+	else if (g_boardSize == 4) res = g_board4.click(pos);
+	else if (g_boardSize == 5) res = g_board5.click(pos);
+	if (res) InvalidateRect(g_hWnd, NULL, FALSE);
 }
 
 void OnLButtonUp(int pixelX, int pixelY, DWORD flags)

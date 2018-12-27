@@ -85,6 +85,55 @@ public:
 		}
 	}
 
+	bool click(PosInfo pos)
+	{
+		if (pos.row < 0 || pos.row >= BOARD_SIZE || pos.col < 0 || pos.col >= BOARD_SIZE) return false;
+		int erow = m_empty / BOARD_SIZE;
+		int ecol = m_empty % BOARD_SIZE;
+		if (erow == pos.row)
+		{
+			if (ecol == pos.col) return false;
+			const int base = erow * BOARD_SIZE;
+			if (ecol < pos.col)
+			{
+				for (int i = ecol; i < pos.col; ++i)
+				{
+					std::swap(m_board[base + i], m_board[base + i + 1]);
+				}
+			}
+			else
+			{
+				for (int i = ecol; i > pos.col; --i)
+				{
+					std::swap(m_board[base + i], m_board[base + i - 1]);
+				}
+			}
+			m_empty = base + pos.col;
+			return true;
+		}
+		else if (ecol == pos.col)
+		{
+			if (erow == pos.row) return false;
+			if (erow < pos.row)
+			{
+				for (int i = erow; i < pos.row; ++i)
+				{
+					std::swap(m_board[i * BOARD_SIZE + ecol], m_board[(i + 1) * BOARD_SIZE + ecol]);
+				}
+			}
+			else
+			{
+				for (int i = erow; i > pos.row; --i)
+				{
+					std::swap(m_board[i * BOARD_SIZE + ecol], m_board[(i - 1) * BOARD_SIZE + ecol]);
+				}
+			}
+			m_empty = pos.row * BOARD_SIZE + ecol;
+			return true;
+		}
+		return false;
+	}
+
 	// 获取当前棋盘位置pos上的图块的正确位置
 	PosInfo getPiecePos(PosInfo pos)
 	{
