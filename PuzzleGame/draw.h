@@ -12,6 +12,7 @@ extern ID2D1SolidColorBrush    *g_pBrush;
 extern IWICImagingFactory      *g_pIWICFactory;
 
 extern int g_boardSize;
+extern bool g_isPreview;
 
 template <class T> inline void SafeRelease(T *&ppT)
 {

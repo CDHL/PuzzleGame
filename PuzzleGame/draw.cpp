@@ -35,6 +35,8 @@ int g_buttonWidth, g_buttonHeight;
 D2D1_POINT_2F g_bmpLTPoint;
 // 位图较短边长度
 float g_bmpSideLength;
+// 是否为预览模式
+bool g_isPreview = false;
 
 void CalculateLayout()
 {
@@ -320,63 +322,87 @@ void PaintBoard()
 {
 	const float boardBottom = g_boardLTPoint.y + g_pieceHeight * g_boardSize;
 	const float boardRight = g_boardLTPoint.x + g_pieceWidth * g_boardSize;
-	float bmpPieceSideLength = g_bmpSideLength / g_boardSize;
-	PosInfo pos;
-	float tmp;
 
-	for (int row = 0; row < g_boardSize; ++row)
+	if (g_isPreview)
 	{
-		for (int col = 0; col < g_boardSize; ++col)
+		g_pRenderTarget->DrawBitmap(
+			g_pBitmap,
+			D2D1::RectF(
+				g_boardLTPoint.x,
+				g_boardLTPoint.y,
+				boardRight,
+				boardBottom
+			),
+			1.0f,
+			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+			D2D1::RectF(
+				g_bmpLTPoint.x,
+				g_bmpLTPoint.y,
+				g_bmpLTPoint.x + g_bmpSideLength,
+				g_bmpLTPoint.y + g_bmpSideLength
+			)
+		);
+	}
+	else
+	{
+		float bmpPieceSideLength = g_bmpSideLength / g_boardSize;
+		PosInfo pos;
+		float tmp;
+
+		for (int row = 0; row < g_boardSize; ++row)
 		{
-			if (g_boardSize == 3) pos = g_board3.getPiecePos({ row, col });
-			else if (g_boardSize == 4) pos = g_board4.getPiecePos({ row, col });
-			else if (g_boardSize == 5) pos = g_board5.getPiecePos({ row, col });
-			if (pos.row != g_boardSize - 1 || pos.col != g_boardSize - 1)
+			for (int col = 0; col < g_boardSize; ++col)
 			{
-				g_pRenderTarget->DrawBitmap(
-					g_pBitmap,
-					D2D1::RectF(
-						g_boardLTPoint.x + col * g_pieceWidth,
-						g_boardLTPoint.y + row * g_pieceHeight,
-						g_boardLTPoint.x + (col + 1) * g_pieceWidth,
-						g_boardLTPoint.y + (row + 1) * g_pieceHeight
-					),
-					1.0f,
-					D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
-					D2D1::RectF(
-						g_bmpLTPoint.x + pos.col * bmpPieceSideLength,
-						g_bmpLTPoint.y + pos.row * bmpPieceSideLength,
-						g_bmpLTPoint.x + (pos.col + 1) * bmpPieceSideLength,
-						g_bmpLTPoint.y + (pos.row + 1) * bmpPieceSideLength
-					)
-				);
+				if (g_boardSize == 3) pos = g_board3.getPiecePos({ row, col });
+				else if (g_boardSize == 4) pos = g_board4.getPiecePos({ row, col });
+				else if (g_boardSize == 5) pos = g_board5.getPiecePos({ row, col });
+				if (pos.row != g_boardSize - 1 || pos.col != g_boardSize - 1)
+				{
+					g_pRenderTarget->DrawBitmap(
+						g_pBitmap,
+						D2D1::RectF(
+							g_boardLTPoint.x + col * g_pieceWidth,
+							g_boardLTPoint.y + row * g_pieceHeight,
+							g_boardLTPoint.x + (col + 1) * g_pieceWidth,
+							g_boardLTPoint.y + (row + 1) * g_pieceHeight
+						),
+						1.0f,
+						D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+						D2D1::RectF(
+							g_bmpLTPoint.x + pos.col * bmpPieceSideLength,
+							g_bmpLTPoint.y + pos.row * bmpPieceSideLength,
+							g_bmpLTPoint.x + (pos.col + 1) * bmpPieceSideLength,
+							g_bmpLTPoint.y + (pos.row + 1) * bmpPieceSideLength
+						)
+					);
+				}
 			}
 		}
-	}
 
-	g_pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+		g_pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
 
-	// 绘制横线
-	for (int i = 0; i <= g_boardSize; ++i)
-	{
-		tmp = g_boardLTPoint.y + i * g_pieceHeight;
+		// 绘制横线
+		for (int i = 0; i <= g_boardSize; ++i)
+		{
+			tmp = g_boardLTPoint.y + i * g_pieceHeight;
 
-		g_pRenderTarget->DrawLine(
-			{ g_boardLTPoint.x, tmp },
-			{ boardRight, tmp },
-			g_pBrush
-		);
-	}
-	// 绘制竖线
-	for (int i = 0; i <= g_boardSize; ++i)
-	{
-		tmp = g_boardLTPoint.x + i * g_pieceWidth;
+			g_pRenderTarget->DrawLine(
+				{ g_boardLTPoint.x, tmp },
+				{ boardRight, tmp },
+				g_pBrush
+			);
+		}
+		// 绘制竖线
+		for (int i = 0; i <= g_boardSize; ++i)
+		{
+			tmp = g_boardLTPoint.x + i * g_pieceWidth;
 
-		g_pRenderTarget->DrawLine(
-			{ tmp, g_boardLTPoint.y },
-			{ tmp, boardBottom },
-			g_pBrush
-		);
+			g_pRenderTarget->DrawLine(
+				{ tmp, g_boardLTPoint.y },
+				{ tmp, boardBottom },
+				g_pBrush
+			);
+		}
 	}
 }
 

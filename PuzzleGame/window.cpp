@@ -76,6 +76,10 @@ LRESULT CALLBACK BtnWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		// 将键盘消息发送给主窗口，同时拦截空格键（按下按钮）
 		SendMessage(g_hWnd, uMsg, wParam, lParam);
 		return 0;
+
+	case WM_KEYUP:
+		SendMessage(g_hWnd, uMsg, wParam, lParam);
+		return 0;
 	}
 
 	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
@@ -245,6 +249,27 @@ For more information, please visit https://docs.microsoft.com/en-us/windows/desk
 
 		case VK_RIGHT:
 			OnMove(MOVE_RIGHT);
+			break;
+
+		case VK_SPACE:
+			if (!g_isPreview)
+			{
+				g_isPreview = true;
+				InvalidateRect(hWnd, NULL, FALSE);
+			}
+			break;
+		}
+		return 0;
+
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case VK_SPACE:
+			if (g_isPreview)
+			{
+				g_isPreview = false;
+				InvalidateRect(hWnd, NULL, FALSE);
+			}
 			break;
 		}
 		return 0;
