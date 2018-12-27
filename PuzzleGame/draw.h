@@ -64,8 +64,12 @@ void CalculateLayout();
 // 创建Direct2D资源
 HRESULT CreateGraphicsResources();
 
+HRESULT CreateMyBitmapFromWicBitmap(IWICBitmapSource * pIWICBitmapSource);
+
 // 放弃Direct2D资源
 void DiscardGraphicsResources();
+
+HRESULT LoadResourceBitmap();
 
 // 左键按下
 void OnLButtonDown(int pixelX, int pixelY, DWORD flags);

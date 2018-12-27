@@ -4,6 +4,7 @@
 
 #include "game.h"
 #include "window.h"
+#include "resource.h"
 
 float DPIScale::scaleX = 1.0f;
 float DPIScale::scaleY = 1.0f;
@@ -105,8 +106,7 @@ HRESULT CreateGraphicsResources()
 
 			if (SUCCEEDED(hr))
 			{
-				// UNDONE: 从资源加载位图
-				hr = SetImageFile(_T("C:\\Users\\18201\\source\\repos\\PuzzleGame\\PuzzleGame\\IMG_0168.JPG"));
+				hr = LoadResourceBitmap();
 
 				if (SUCCEEDED(hr))
 				{
@@ -118,11 +118,144 @@ HRESULT CreateGraphicsResources()
 	return hr;
 }
 
+HRESULT CreateMyBitmapFromWicBitmap(IWICBitmapSource *pIWICBitmapSource)
+{
+
+	ID2D1Bitmap *tpBitmap;
+	// Create a Direct2D bitmap from the WIC bitmap.
+	HRESULT hr = g_pRenderTarget->CreateBitmapFromWicBitmap(
+		pIWICBitmapSource,
+		NULL,
+		&tpBitmap
+	);
+
+	if (SUCCEEDED(hr))
+	{
+		SafeRelease(g_pBitmap);
+		g_pBitmap = tpBitmap;
+
+		D2D1_SIZE_F size = g_pBitmap->GetSize();
+
+		if (size.width < size.height)
+		{
+			g_bmpLTPoint.x = 0.0f;
+			g_bmpLTPoint.y = (size.height - size.width) / 2;
+			g_bmpSideLength = size.width;
+		}
+		else
+		{
+			g_bmpLTPoint.y = 0.0f;
+			g_bmpLTPoint.x = (size.width - size.height) / 2;
+			g_bmpSideLength = size.height;
+		}
+
+		InvalidateRect(g_hWnd, NULL, FALSE);
+	}
+
+	return hr;
+}
+
 void DiscardGraphicsResources()
 {
 	SafeRelease(g_pRenderTarget);
 	SafeRelease(g_pBrush);
 	SafeRelease(g_pBitmap);
+}
+
+HRESULT LoadResourceBitmap()
+{
+	IWICBitmapDecoder *pDecoder = NULL;
+	IWICBitmapFrameDecode *pSource = NULL;
+	IWICStream *pStream = NULL;
+	IWICFormatConverter *pConverter = NULL;
+
+	HRSRC imageResHandle = NULL;
+	HGLOBAL imageResDataHandle = NULL;
+	void *pImageFile = NULL;
+	DWORD imageFileSize = 0;
+
+	// Locate the resource.
+	imageResHandle = FindResource(NULL, MAKEINTRESOURCE(IDR_IMAGE1), _T("Image"));
+	HRESULT hr = imageResHandle ? S_OK : E_FAIL;
+	if (SUCCEEDED(hr))
+	{
+		// Load the resource.
+		imageResDataHandle = LoadResource(NULL, imageResHandle);
+
+		hr = imageResDataHandle ? S_OK : E_FAIL;
+	}
+	if (SUCCEEDED(hr))
+	{
+		// Lock it to get a system memory pointer.
+		pImageFile = LockResource(imageResDataHandle);
+
+		hr = pImageFile ? S_OK : E_FAIL;
+	}
+	if (SUCCEEDED(hr))
+	{
+		// Calculate the size.
+		imageFileSize = SizeofResource(NULL, imageResHandle);
+
+		hr = imageFileSize ? S_OK : E_FAIL;
+
+	}
+	if (SUCCEEDED(hr))
+	{
+		// Create a WIC stream to map onto the memory.
+		hr = g_pIWICFactory->CreateStream(&pStream);
+	}
+	if (SUCCEEDED(hr))
+	{
+		// Initialize the stream with the memory pointer and size.
+		hr = pStream->InitializeFromMemory(
+			reinterpret_cast<BYTE*>(pImageFile),
+			imageFileSize
+		);
+	}
+	if (SUCCEEDED(hr))
+	{
+		// Create a decoder for the stream.
+		hr = g_pIWICFactory->CreateDecoderFromStream(
+			pStream,
+			NULL,
+			WICDecodeMetadataCacheOnLoad,
+			&pDecoder
+		);
+	}
+	if (SUCCEEDED(hr))
+	{
+		// Create the initial frame.
+		hr = pDecoder->GetFrame(0, &pSource);
+	}
+	if (SUCCEEDED(hr))
+	{
+		// Convert the image format to 32bppPBGRA
+		// (DXGI_FORMAT_B8G8R8A8_UNORM + D2D1_ALPHA_MODE_PREMULTIPLIED).
+		hr = g_pIWICFactory->CreateFormatConverter(&pConverter);
+	}
+	if (SUCCEEDED(hr))
+	{
+		hr = pConverter->Initialize(
+			pSource,
+			GUID_WICPixelFormat32bppPBGRA,
+			WICBitmapDitherTypeNone,
+			NULL,
+			0.f,
+			WICBitmapPaletteTypeMedianCut
+		);
+	}
+	if (SUCCEEDED(hr))
+	{
+		//create a Direct2D bitmap from the WIC bitmap.
+		hr = CreateMyBitmapFromWicBitmap(pConverter);
+	}
+
+	SafeRelease(pDecoder);
+	SafeRelease(pSource);
+	SafeRelease(pStream);
+	SafeRelease(pConverter);
+
+	return hr;
 }
 
 void OnLButtonDown(int pixelX, int pixelY, DWORD flags)
@@ -331,36 +464,7 @@ HRESULT SetImageFile(PCTSTR fileName)
 
 	if (SUCCEEDED(hr))
 	{
-		ID2D1Bitmap *tpBitmap;
-		// Create a Direct2D bitmap from the WIC bitmap.
-		hr = g_pRenderTarget->CreateBitmapFromWicBitmap(
-			pConverter,
-			NULL,
-			&tpBitmap
-		);
-
-		if (SUCCEEDED(hr))
-		{
-			SafeRelease(g_pBitmap);
-			g_pBitmap = tpBitmap;
-
-			D2D1_SIZE_F size = g_pBitmap->GetSize();
-
-			if (size.width < size.height)
-			{
-				g_bmpLTPoint.x = 0.0f;
-				g_bmpLTPoint.y = (size.height - size.width) / 2;
-				g_bmpSideLength = size.width;
-			}
-			else
-			{
-				g_bmpLTPoint.y = 0.0f;
-				g_bmpLTPoint.x = (size.width - size.height) / 2;
-				g_bmpSideLength = size.height;
-			}
-
-			InvalidateRect(g_hWnd, NULL, FALSE);
-		}
+		hr = CreateMyBitmapFromWicBitmap(pConverter);
 	}
 
 	SafeRelease(pDecoder);

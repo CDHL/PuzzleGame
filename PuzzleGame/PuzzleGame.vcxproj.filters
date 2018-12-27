@@ -53,4 +53,9 @@
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="bear.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
