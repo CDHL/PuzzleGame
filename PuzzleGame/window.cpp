@@ -145,6 +145,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_CREATE:
 		// 创建WIC工厂
+		// CLSID_WICImagingFactory默认为CLSID_WICImagingFactory2
+		// 使用CLSID_WICImagingFactory1以兼容Windows7及以下
 		if (FAILED(CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&g_pIWICFactory))))
 		{
 			return -1;
