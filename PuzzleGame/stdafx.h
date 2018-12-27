@@ -3,8 +3,6 @@
 #include <tchar.h>
 
 #include <Windows.h>
-#include <CommCtrl.h>
-#pragma comment(lib, "comctl32.lib")
 
 #ifdef _UNICODE
 #if defined _M_IX86

@@ -2,6 +2,8 @@
 
 #include "window.h"
 
+#include <CommCtrl.h>
+#pragma comment(lib, "comctl32.lib")
 #include <windowsx.h>
 
 #include "draw.h"
