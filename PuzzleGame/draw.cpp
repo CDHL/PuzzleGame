@@ -508,5 +508,10 @@ HRESULT SetImageFile(PCTSTR fileName)
 	SafeRelease(pSource);
 	SafeRelease(pConverter);
 
+	if (FAILED(hr))
+	{
+		MessageBox(g_hWnd, _T("无法读取该文件。\n无效的位图文件或不支持文件的格式。"), NULL, MB_OK | MB_ICONWARNING);
+	}
+
 	return hr;
 }
