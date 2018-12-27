@@ -72,5 +72,5 @@ int WINAPI _tWinMain(
 	// 取消初始化COM库
 	CoUninitialize();
 
-	return msg.wParam;
+	return (int)msg.wParam;
 }
