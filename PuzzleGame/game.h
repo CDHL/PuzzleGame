@@ -5,10 +5,13 @@
 
 template<int BOARD_SIZE> class Board;
 
+extern int g_boardSize;
+
 extern Board<3> g_board3;
 extern Board<4> g_board4;
 extern Board<5> g_board5;
 
+// 需保证异或1为逆操作
 enum MoveInfo
 {
 	MOVE_UP = 0,
@@ -23,11 +26,16 @@ struct PosInfo
 	int col;
 };
 
-template<int BOARD_SIZE>
+template <class BoardType> struct Status;
+
+template <int BOARD_SIZE>
 class Board
 {
 	int m_board[BOARD_SIZE * BOARD_SIZE];
 	int m_empty;
+
+	template <class BoardType>
+	friend void Status<BoardType>::calcF();
 
 public:
 
@@ -94,11 +102,26 @@ public:
 		return false;
 	}
 
+	int getEmpty()
+	{
+		return m_empty;
+	}
+
 	// 获取当前棋盘位置pos上的图块的正确位置
 	PosInfo getPiecePos(PosInfo pos)
 	{
 		const int num = m_board[pos.row * BOARD_SIZE + pos.col];
 		return { num / BOARD_SIZE, num % BOARD_SIZE };
+	}
+
+	unsigned long long hash() const
+	{
+		unsigned long long res = 0;
+		for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; ++i)
+		{
+			res = res * 33 + m_board[i];
+		}
+		return res;
 	}
 
 	bool isFinished()

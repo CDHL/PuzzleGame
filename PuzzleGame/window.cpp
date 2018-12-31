@@ -6,6 +6,7 @@
 #pragma comment(lib, "comctl32.lib")
 #include <windowsx.h>
 
+#include "auto.h"
 #include "draw.h"
 #include "game.h"
 #include "resource.h"
@@ -136,6 +137,14 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				else if (g_boardSize == 4) g_board4.clear();
 				else if (g_boardSize == 5) g_board5.clear();
 				InvalidateRect(hWnd, NULL, FALSE);
+				break;
+
+			case MBTN_AUTO:
+				CloseHandle(CreateThread(NULL, 0, AutoComplete, NULL, 0, NULL));
+				break;
+
+			case MBTN_STOP:
+
 				break;
 
 			case MBTN_IMAGE:

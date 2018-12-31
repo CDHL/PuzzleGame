@@ -2,6 +2,7 @@
 
 #include "draw.h"
 
+#include "auto.h"
 #include "game.h"
 #include "window.h"
 #include "resource.h"
@@ -21,8 +22,6 @@ constexpr float BORDER_GAP = 0.1f;
 constexpr float RECT_SCALE = 16.0f / 9.0f;
 // 按钮垂直间隔/按钮高度
 constexpr float BUTTON_GAP = 1.0f / 4.0f;
-// 当前棋盘大小
-int g_boardSize = 4;
 // 绘制矩形
 RECT g_paintRect;
 // 棋盘左上角坐标（DIP）
@@ -342,6 +341,17 @@ void PaintBoard()
 				g_bmpLTPoint.y + g_bmpSideLength
 			)
 		);
+
+		g_pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+		g_pRenderTarget->DrawRectangle(
+			D2D1::RectF(
+				g_boardLTPoint.x,
+				g_boardLTPoint.y,
+				boardRight,
+				boardBottom
+			),
+			g_pBrush
+		);
 	}
 	else
 	{
@@ -435,6 +445,20 @@ void PaintButton()
 	}
 
 	cury += dy;
+	if (g_threadRunning)
+	{
+		ShowWindow(g_hBtnStop, SW_SHOW);
+		ShowWindow(g_hBtnAuto, SW_HIDE);
+		MoveWindow(g_hBtnStop, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
+		InvalidateRect(g_hBtnStop, NULL, FALSE);
+	}
+	else
+	{
+		ShowWindow(g_hBtnAuto, SW_SHOW);
+		ShowWindow(g_hBtnStop, SW_HIDE);
+		MoveWindow(g_hBtnAuto, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
+		InvalidateRect(g_hBtnAuto, NULL, FALSE);
+	}
 
 	cury += dy;
 	MoveWindow(g_hBtnImage, g_paintRect.left, cury, g_buttonWidth, g_buttonHeight, FALSE);
