@@ -41,18 +41,18 @@ void Status<Board<5> >::calcF()
 {
 	int tmp, trow, tcol;
 	f = 0;
-	for (int row = 0; row < 4; ++row)
+	for (int row = 0; row < 5; ++row)
 	{
-		for (int col = 0; col < 4; ++col)
+		for (int col = 0; col < 5; ++col)
 		{
-			tmp = board.m_board[row * 4 + col];
-			if (tmp == 4 * 4 - 1) continue;
-			trow = tmp / 4;
-			tcol = tmp % 4;
+			tmp = board.m_board[row * 5 + col];
+			if (tmp == 5 * 5 - 1) continue;
+			trow = tmp / 5;
+			tcol = tmp % 5;
 			f += abs(row - trow) + abs(col - tcol);
 		}
 	}
-	f *= 11;
+	f *= 9;
 	f += g * 4;
 }
 
