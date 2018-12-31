@@ -32,7 +32,7 @@ void Status<Board<4> >::calcF()
 			f += abs(row - trow) + abs(col - tcol);
 		}
 	}
-	f *= 7;
+	f *= 5;
 	f += g * 4;
 }
 
@@ -166,7 +166,7 @@ DWORD WINAPI AutoComplete(LPVOID lpParam)
 			else if (g_boardSize == 4) g_board4.move(g_steps[i]);
 			else g_board5.move(g_steps[i]);
 			InvalidateRect(g_hWnd, NULL, FALSE);
-			if (i != g_stepCount - 1) Sleep(400);
+			if (i != g_stepCount - 1) Sleep(300);
 		}
 	}
 
