@@ -4,6 +4,7 @@
 #include <ctime>
 
 #include "draw.h"
+#include "resource.h"
 #include "window.h"
 
 int WINAPI _tWinMain(
@@ -31,6 +32,7 @@ int WINAPI _tWinMain(
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wc.lpszClassName = CLASS_NAME;
 
 	RegisterClass(&wc);
