@@ -271,7 +271,7 @@ void OnLButtonDown(int pixelX, int pixelY, DWORD flags)
 	bool res;
 	if (g_boardSize == 3) res = g_board3.click(pos);
 	else if (g_boardSize == 4) res = g_board4.click(pos);
-	else if (g_boardSize == 5) res = g_board5.click(pos);
+	else res = g_board5.click(pos);
 	if (res) InvalidateRect(g_hWnd, NULL, FALSE);
 }
 
@@ -285,7 +285,7 @@ void OnMove(MoveInfo mov)
 	bool res;
 	if (g_boardSize == 3) res = g_board3.move(mov);
 	else if (g_boardSize == 4) res = g_board4.move(mov);
-	else if (g_boardSize == 5) res = g_board5.move(mov);
+	else res = g_board5.move(mov);
 	if (res)
 	{
 		InvalidateRect(g_hWnd, NULL, FALSE);
@@ -365,7 +365,7 @@ void PaintBoard()
 			{
 				if (g_boardSize == 3) pos = g_board3.getPiecePos({ row, col });
 				else if (g_boardSize == 4) pos = g_board4.getPiecePos({ row, col });
-				else if (g_boardSize == 5) pos = g_board5.getPiecePos({ row, col });
+				else pos = g_board5.getPiecePos({ row, col });
 				if (pos.row != g_boardSize - 1 || pos.col != g_boardSize - 1)
 				{
 					g_pRenderTarget->DrawBitmap(
@@ -428,7 +428,7 @@ void PaintButton()
 	cury += dy;
 	if (g_boardSize == 3) isSolved = g_board3.isFinished();
 	else if (g_boardSize == 4) isSolved = g_board4.isFinished();
-	else if (g_boardSize == 5) isSolved = g_board5.isFinished();
+	else isSolved = g_board5.isFinished();
 	if (isSolved)
 	{
 		ShowWindow(g_hBtnRandom, SW_SHOW);

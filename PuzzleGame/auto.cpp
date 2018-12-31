@@ -47,14 +47,18 @@ DWORD WINAPI AutoComplete(LPVOID lpParam)
 	InvalidateRect(g_hWnd, NULL, FALSE);
 
 	bool res;
-	if (g_boardSize == 4) res = GetSteps(g_board4);
+	if (g_boardSize == 3) res = GetSteps(g_board3);
+	else if (g_boardSize == 4) res = GetSteps(g_board4);
+	else res = GetSteps(g_board5);
 
 	if (res)
 	{
 		for (int i = 0; i < g_stepCount; ++i)
 		{
 			if (!g_threadRunning) return 0;
-			if (g_boardSize == 4) g_board4.move(g_steps[i]);
+			if (g_boardSize == 3) g_board3.move(g_steps[i]);
+			else if (g_boardSize == 4) g_board4.move(g_steps[i]);
+			else g_board5.move(g_steps[i]);
 			InvalidateRect(g_hWnd, NULL, FALSE);
 			Sleep(400);
 		}
