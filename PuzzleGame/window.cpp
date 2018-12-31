@@ -144,7 +144,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case MBTN_STOP:
-
+				g_threadRunning = false;
 				break;
 
 			case MBTN_IMAGE:

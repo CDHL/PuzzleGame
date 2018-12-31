@@ -53,6 +53,7 @@ DWORD WINAPI AutoComplete(LPVOID lpParam)
 	{
 		for (int i = 0; i < g_stepCount; ++i)
 		{
+			if (!g_threadRunning) return 0;
 			if (g_boardSize == 4) g_board4.move(g_steps[i]);
 			InvalidateRect(g_hWnd, NULL, FALSE);
 			Sleep(400);

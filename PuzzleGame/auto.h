@@ -16,7 +16,7 @@ extern bool g_threadRunning;
 template<typename DATA_TYPE>
 class Allocator
 {
-	static const int ALLOC_COUNT = 1024;
+	static const int ALLOC_COUNT = 8192;
 	std::vector<DATA_TYPE*> m_pool;
 	int m_curElement;
 
