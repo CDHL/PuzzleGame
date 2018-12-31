@@ -149,9 +149,6 @@ bool GetSteps(const BoardType &start)
 
 DWORD WINAPI AutoComplete(LPVOID lpParam)
 {
-	g_threadRunning = true;
-	InvalidateRect(g_hWnd, NULL, FALSE);
-
 	bool res;
 	if (g_boardSize == 3) res = GetSteps(g_board3);
 	else if (g_boardSize == 4) res = GetSteps(g_board4);

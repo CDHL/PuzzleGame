@@ -118,6 +118,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			switch (LOWORD(wParam))
 			{
 			case MBTN_DIFFICULTY:
+				if (g_threadRunning) break;
 				if (g_boardSize == 3) g_boardSize = 4;
 				else if (g_boardSize == 4) g_boardSize = 5;
 				else g_boardSize = 3;
@@ -126,6 +127,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case MBTN_RANDOM:
+				if (g_threadRunning) break;
 				if (g_boardSize == 3) g_board3.random_shuffle();
 				else if (g_boardSize == 4) g_board4.random_shuffle();
 				else g_board5.random_shuffle();
@@ -133,6 +135,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case MBTN_SOLVE:
+				if (g_threadRunning) break;
 				if (g_boardSize == 3) g_board3.clear();
 				else if (g_boardSize == 4) g_board4.clear();
 				else g_board5.clear();
@@ -140,6 +143,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case MBTN_AUTO:
+				if (g_threadRunning) break;
+				g_threadRunning = true;
+				InvalidateRect(g_hWnd, NULL, FALSE);
 				CloseHandle(CreateThread(NULL, 0, AutoComplete, NULL, 0, NULL));
 				break;
 
@@ -244,24 +250,28 @@ For more information, please visit https://docs.microsoft.com/en-us/windows/desk
 		case 'W':
 
 		case VK_UP:
+			if (g_threadRunning) break;
 			OnMove(MOVE_UP);
 			break;
 
 		case 'S':
 
 		case VK_DOWN:
+			if (g_threadRunning) break;
 			OnMove(MOVE_DOWN);
 			break;
 
 		case 'A':
 
 		case VK_LEFT:
+			if (g_threadRunning) break;
 			OnMove(MOVE_LEFT);
 			break;
 
 		case 'D':
 
 		case VK_RIGHT:
+			if (g_threadRunning) break;
 			OnMove(MOVE_RIGHT);
 			break;
 
@@ -289,6 +299,7 @@ For more information, please visit https://docs.microsoft.com/en-us/windows/desk
 		return 0;
 
 	case WM_LBUTTONDOWN:
+		if (g_threadRunning) break;
 		OnLButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
 		return 0;
 

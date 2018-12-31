@@ -102,13 +102,13 @@ public:
 		return false;
 	}
 
-	int getEmpty()
+	int getEmpty() const
 	{
 		return m_empty;
 	}
 
 	// 获取当前棋盘位置pos上的图块的正确位置
-	PosInfo getPiecePos(PosInfo pos)
+	PosInfo getPiecePos(PosInfo pos) const
 	{
 		const int num = m_board[pos.row * BOARD_SIZE + pos.col];
 		return { num / BOARD_SIZE, num % BOARD_SIZE };
@@ -124,7 +124,7 @@ public:
 		return res;
 	}
 
-	bool isFinished()
+	bool isFinished() const
 	{
 		for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; ++i)
 		{
