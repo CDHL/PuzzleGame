@@ -69,94 +69,9 @@ struct Cmp
 };
 
 template <class BoardType>
-Status<BoardType>* Astar(const BoardType &start, Allocator<Status<BoardType> > &alloc)
-{
-	using Status = Status<BoardType>;
-	using ULL = unsigned long long;
-
-	std::priority_queue<Status*, std::vector<Status*>, Cmp<Status> > que;
-	std::set<ULL> hashSet;
-	std::pair<std::set<ULL>::iterator, bool> insertResult;
-
-	Status *cur;
-	Status *p = alloc.getNew();
-	p->board = start;
-	p->g = 0;
-	p->fa = NULL;
-	p->calcF();
-	hashSet.insert(start.hash());
-	que.push(p);
-
-	while (!que.empty())
-	{
-		cur = que.top();
-		if (cur->board.isFinished()) return cur;
-		que.pop();
-
-		for (int i = 0; i < 4; ++i)
-		{
-			if (cur->board.move(static_cast<MoveInfo>(i)))
-			{
-				insertResult = hashSet.insert(cur->board.hash());
-				if (insertResult.second)
-				{
-					p = alloc.getNew();
-					p->board = cur->board;
-					p->g = cur->g + 1;
-					p->calcF();
-					p->fa = cur;
-					que.push(p);
-				}
-				cur->board.move(static_cast<MoveInfo>(i ^ 1));
-			}
-		}
-	}
-	return NULL;
-}
+Status<BoardType>* Astar(const BoardType &start, Allocator<Status<BoardType> > &alloc);
 
 template <class BoardType>
-bool GetSteps(const BoardType &start)
-{
-	using Status = Status<BoardType>;
-
-	Allocator<Status> alloc;
-
-	Status *res = Astar(start, alloc), *p;
-
-	if (!res) return false;
-
-	g_stepCount = 0;
-	// 统计步数
-	p = res;
-	while (p->fa)
-	{
-		++g_stepCount;
-		p = p->fa;
-	}
-
-	// 记录每步操作
-	int curStep = g_stepCount;
-	int lastEmpty, curEmpty;
-	MoveInfo curMove;
-	p = res;
-	while (p->fa)
-	{
-		lastEmpty = p->fa->board.getEmpty();
-		curEmpty = p->board.getEmpty();
-		if (curEmpty < lastEmpty)
-		{
-			if (curEmpty == lastEmpty - 1) curMove = MOVE_RIGHT;
-			else curMove = MOVE_DOWN;
-		}
-		else
-		{
-			if (curEmpty == lastEmpty + 1) curMove = MOVE_LEFT;
-			else curMove = MOVE_UP;
-		}
-		g_steps[--curStep] = curMove;
-		p = p->fa;
-	}
-	return true;
-}
+bool GetSteps(const BoardType &start);
 
 DWORD WINAPI AutoComplete(LPVOID lpParam);
