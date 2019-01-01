@@ -42,6 +42,7 @@ INT_PTR CALLBACK AboutDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	case WM_INITDIALOG:
 		// 居中对话框（相对父窗口）
 	{
+		SendDlgItemMessage(hWnd, IDC_STATIC1, STM_SETICON, (WPARAM)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1)), 0);
 		HWND hWndOwner = GetParent(hWnd);
 		RECT rcDlg, rcOwner;
 
