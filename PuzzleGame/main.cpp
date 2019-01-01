@@ -42,7 +42,7 @@ int WINAPI _tWinMain(
 	g_hWnd = CreateWindowEx(
 		0,                      // Optional window styles
 		CLASS_NAME,             // Window class
-		_T("PuzzleGame"),           // Window text
+		_T("Puzzle Game"),      // Window text
 		WS_OVERLAPPEDWINDOW,    // Window style
 
 		// Size and position

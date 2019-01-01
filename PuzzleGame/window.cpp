@@ -180,7 +180,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			HMENU hMenu = GetSystemMenu(hWnd, FALSE);
 			AppendMenu(hMenu, MF_SEPARATOR, 0, 0);         // 添加水平分割线
-			AppendMenu(hMenu, MF_STRING, MMENU_ABOUT, _T("关于 PuzzleGame(&A)..."));
+			AppendMenu(hMenu, MF_STRING, MMENU_ABOUT, _T("关于 Puzzle Game(&A)..."));
 		}
 		// 创建按钮
 		{
