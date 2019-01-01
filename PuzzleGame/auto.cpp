@@ -2,6 +2,7 @@
 
 #include "auto.h"
 
+#include "draw.h"
 #include "game.h"
 #include "window.h"
 
@@ -159,10 +160,7 @@ DWORD WINAPI AutoComplete(LPVOID lpParam)
 		for (int i = 0; i < g_stepCount; ++i)
 		{
 			if (!g_threadRunning) return 0;
-			if (g_boardSize == 3) g_board3.move(g_steps[i]);
-			else if (g_boardSize == 4) g_board4.move(g_steps[i]);
-			else g_board5.move(g_steps[i]);
-			InvalidateRect(g_hWnd, NULL, FALSE);
+			OnMove(g_steps[i]);
 			if (i != g_stepCount - 1) Sleep(300);
 		}
 	}
