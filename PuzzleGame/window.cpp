@@ -168,7 +168,11 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// 使用CLSID_WICImagingFactory1以兼容Windows7及以下
 		if (FAILED(CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&g_pIWICFactory))))
 		{
-			return -1;
+			// 失败时尝试创建CLSID_WICImagingFactory1以兼容Windows7
+			if (FAILED(CoCreateInstance(CLSID_WICImagingFactory1, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&g_pIWICFactory))))
+			{
+				return -1;
+			}
 		}
 		// 创建Direct2D工厂
 		if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &g_pID2D1Factory)))
