@@ -12,7 +12,7 @@ extern Board<4> g_board4;
 extern Board<5> g_board5;
 
 // 需保证异或1为逆操作
-enum MoveInfo
+enum class MoveInfo
 {
 	MOVE_UP = 0,
 	MOVE_DOWN = 1,
@@ -140,22 +140,22 @@ public:
 		bool res;
 		switch (mov)
 		{
-		case MOVE_UP:
+		case MoveInfo::MOVE_UP:
 			nextEmpty = m_empty + BOARD_SIZE;
 			res = nextEmpty < BOARD_SIZE * BOARD_SIZE;
 			break;
 
-		case MOVE_DOWN:
+		case MoveInfo::MOVE_DOWN:
 			nextEmpty = m_empty - BOARD_SIZE;
 			res = nextEmpty >= 0;
 			break;
 
-		case MOVE_LEFT:
+		case MoveInfo::MOVE_LEFT:
 			nextEmpty = m_empty + 1;
 			res = nextEmpty % BOARD_SIZE != 0;
 			break;
 
-		case MOVE_RIGHT:
+		case MoveInfo::MOVE_RIGHT:
 			nextEmpty = m_empty - 1;
 			res = m_empty % BOARD_SIZE != 0;
 			break;

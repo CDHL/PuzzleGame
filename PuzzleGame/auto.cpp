@@ -134,13 +134,13 @@ bool GetSteps(const BoardType &start)
 		curEmpty = p->board.getEmpty();
 		if (curEmpty < lastEmpty)
 		{
-			if (curEmpty == lastEmpty - 1) curMove = MOVE_RIGHT;
-			else curMove = MOVE_DOWN;
+			if (curEmpty == lastEmpty - 1) curMove = MoveInfo::MOVE_RIGHT;
+			else curMove = MoveInfo::MOVE_DOWN;
 		}
 		else
 		{
-			if (curEmpty == lastEmpty + 1) curMove = MOVE_LEFT;
-			else curMove = MOVE_UP;
+			if (curEmpty == lastEmpty + 1) curMove = MoveInfo::MOVE_LEFT;
+			else curMove = MoveInfo::MOVE_UP;
 		}
 		g_steps[--curStep] = curMove;
 		p = p->fa;

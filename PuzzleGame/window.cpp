@@ -179,7 +179,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			return -1;
 		}
-		DPIScale::Initialize(g_pID2D1Factory);
+		DPIScale::Initialize();
 
 		// 添加"关于"项到窗口菜单
 		{
@@ -256,28 +256,28 @@ For more information, please visit https://docs.microsoft.com/en-us/windows/desk
 
 		case VK_UP:
 			if (g_threadRunning) break;
-			OnMove(MOVE_UP);
+			OnMove(MoveInfo::MOVE_UP);
 			break;
 
 		case 'S':
 
 		case VK_DOWN:
 			if (g_threadRunning) break;
-			OnMove(MOVE_DOWN);
+			OnMove(MoveInfo::MOVE_DOWN);
 			break;
 
 		case 'A':
 
 		case VK_LEFT:
 			if (g_threadRunning) break;
-			OnMove(MOVE_LEFT);
+			OnMove(MoveInfo::MOVE_LEFT);
 			break;
 
 		case 'D':
 
 		case VK_RIGHT:
 			if (g_threadRunning) break;
-			OnMove(MOVE_RIGHT);
+			OnMove(MoveInfo::MOVE_RIGHT);
 			break;
 
 		case VK_SPACE:

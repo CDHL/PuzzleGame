@@ -24,37 +24,25 @@ template <class T> inline void SafeRelease(T *&ppT)
 
 class DPIScale
 {
-	static float scaleX;
-	static float scaleY;
+	static float scale;
 
 public:
-	static void Initialize(ID2D1Factory *pFactory)
+	static void Initialize()
 	{
-		FLOAT dpiX, dpiY;
-
-		pFactory->GetDesktopDpi(&dpiX, &dpiY);
-
-		scaleX = dpiX / 96.0f;
-		scaleY = dpiY / 96.0f;
+		scale = GetDpiForSystem() / 96.0f;
 	}
 
 	// 像素转为DIPs（设备无关像素）
 	template <typename T>
 	static D2D1_POINT_2F PixelsToDips(T x, T y)
 	{
-		return D2D1::Point2F(static_cast<float>(x) / scaleX, static_cast<float>(y) / scaleY);
+		return D2D1::Point2F(static_cast<float>(x) / scale, static_cast<float>(y) / scale);
 	}
 
 	template <typename T>
-	static float PixelsToDipsX(T x)
+	static float PixelsToDips(T x)
 	{
-		return static_cast<float>(x) / scaleX;
-	}
-
-	template <typename T>
-	static float PixelsToDipsY(T y)
-	{
-		return static_cast<float>(y) / scaleY;
+		return static_cast<float>(x) / scale;
 	}
 };
 

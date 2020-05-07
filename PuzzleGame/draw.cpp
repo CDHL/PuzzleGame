@@ -7,8 +7,7 @@
 #include "window.h"
 #include "resource.h"
 
-float DPIScale::scaleX = 1.0f;
-float DPIScale::scaleY = 1.0f;
+float DPIScale::scale = 1.0f;
 
 ID2D1Factory			*g_pID2D1Factory;
 ID2D1HwndRenderTarget	*g_pRenderTarget;
@@ -75,8 +74,8 @@ void CalculateLayout()
 
 		// 计算棋盘位置
 		g_boardLTPoint = DPIScale::PixelsToDips(g_paintRect.right - height, g_paintRect.top);
-		g_pieceWidth = DPIScale::PixelsToDipsX(height) / g_boardSize;
-		g_pieceHeight = DPIScale::PixelsToDipsY(height) / g_boardSize;
+		g_pieceWidth = DPIScale::PixelsToDips(height) / g_boardSize;
+		g_pieceHeight = DPIScale::PixelsToDips(height) / g_boardSize;
 
 		// 计算按钮位置
 		g_buttonWidth = width - height - horizontalGap;
