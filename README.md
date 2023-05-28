@@ -3,4 +3,4 @@
 
 使用A\*启发式搜索实现了自动完成功能
 
-![image](https://user-images.githubusercontent.com/37873258/231083664-f0c9da71-ed0d-4f00-8e5a-4348f18ca6eb.png)
+<img width="951" alt="游戏屏幕截图" src="https://github.com/CDHL/PuzzleGame/assets/37873258/1aec783b-1c96-4dc8-ad1c-6d2e52245ed5">
