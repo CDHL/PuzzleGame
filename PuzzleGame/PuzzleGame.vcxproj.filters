@@ -60,10 +60,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="bear.jpg">
+    <Image Include="icon.ico">
       <Filter>资源文件</Filter>
     </Image>
-    <Image Include="icon.ico">
+    <Image Include="keqing_85633671_p0.jpg">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
